@@ -1,0 +1,63 @@
+#!/bin/sh -e
+
+######################################################################
+#
+# age - calculates the number of seconds that have passed since a
+#       specified file was last modified.
+#
+# USAGE: age <file>
+#
+# Written by fujis (ppdx999@gmail) on 2024-04-10
+#
+# This is a public-domain software (CC0). It means that all of the
+# people can use this for any purposes with no restrictions at all.
+# By the way, We are fed up with the side effects which are brought
+# about by the major licenses.
+#
+# The latest version is distributed at the following page.
+# https://github.com/ppdx999/unhide
+#
+######################################################################
+
+# === Initialize shell environment ===================================
+set -u
+umask 0022
+export LC_ALL=C
+export PATH="$(command -p getconf PATH 2>/dev/null)${PATH+:}${PATH-}"
+case $PATH in :*) PATH=${PATH#?};; esac
+export UNIX_STD=2003  # to make HP-UX conform to POSIX
+
+# === Help message ===================================================
+case "$1" in
+  -h|--help)
+    echo "usage: unhide <file> ..."
+    exit 1
+  ;;
+esac
+
+# === Main routine ===================================================
+FILE_PATH="$1" # コマンドの第一引数としてファイルパスを受け取る
+
+# 1. Try GNU stat (preferred)
+set +e # Disable error checking to try multiple methods
+if type stat >/dev/null 2>&1; then
+  FILE_MOD_TIME=$(stat -c %Y "$FILE_PATH" 2>/dev/null || stat -f %m "$FILE_PATH" 2>/dev/null)
+elif ls --time-style="+%Y-%m-%d %H:%M:%S" "$FILE_PATH" >/dev/null 2>&1; then
+  # 2. Use ls with --time-style if available
+  FILE_MOD_TIME=$(ls -l --time-style="+%Y-%m-%d %H:%M:%S" "$FILE_PATH" | awk '{print $6, $7}' | xargs -I{} date -d "{}" +%s)
+elif find "$FILE_PATH" -prune -printf '%T@\n' 2>/dev/null; then
+  # 3. Use find with -printf if available
+  FILE_MOD_TIME=$(find "$FILE_PATH" -prune -printf '%T@\n' | awk '{printf "%.0f", $1}')
+else
+  echo "Error: No compatible method found to retrieve modification time" >&2
+  exit 1
+fi
+set -e # Re-enable error checking
+
+# Calculate elapsed time
+CURRENT_TIME=$(date +%s)
+ELAPSED_TIME=$((CURRENT_TIME - FILE_MOD_TIME))
+
+echo "$ELAPSED_TIME"
+
+exit 0
