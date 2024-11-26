@@ -1,0 +1,245 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+function usage() {
+    print "Converts a Markdown file to HTML"
+    print ""
+    print "Usage: md2html [file]"
+    print "Options: if file is not specified, read from stdin"
+    print "Version: fujis Tue Nov 26 18:27:03 JST 2024"
+    exit 1
+}
+
+BEGIN {
+  # Parse Options
+  for (i = 1; i < ARGC; i++) {
+    if ( ARGV[i] == "-h" ||
+         ARGV[i] == "--help" ||
+         ARGV[i] == "-v" ||
+         ARGV[i] == "--version" ||
+         ARGC == 1 )
+    {
+      usage()
+    }
+  }
+  delete ARGV[1]
+}
+
+##########################################################
+# Define Functions
+
+function process_links(line, link_pattern, matched, text, url) {
+    link_pattern = "\\[[^\\]]+\\]\\([^)]+\\)"
+    while (match(line, link_pattern)) {
+      matched = substr(line, RSTART + 1, RLENGTH - 2)
+      text = substr(matched, 1, index(matched, "]") - 1)
+      url = substr(matched, index(matched, "(") + 1, RLENGTH - 1 - index(matched, "("))
+
+      line = substr(line, 1, RSTART - 1) "<a href=\"" url "\">" text "</a>" substr(line, RSTART + RLENGTH)
+    }
+    return line
+}
+
+function process_image(line, image_pattern, matched, alt, url) {
+    image_pattern = "![^\\]]+\\]\\([^)]+\\)"
+    while (match(line, image_pattern)) {
+        matched = substr(line, RSTART + 2, RLENGTH - 3)
+        alt = substr(matched, 1, index(matched, "]") - 1)
+        url = substr(matched, index(matched, "(") + 1, RLENGTH - 1 - index(matched, "("))
+        line = substr(line, 1, RSTART - 1) "<img src=\"" url "\" alt=\"" alt "\">" substr(line, RSTART + RLENGTH)
+    }
+    return line
+}
+
+function process_inline_code(line, code_pattern, matched, text) {
+    code_pattern = "`[^`]+`"
+    while (match(line, code_pattern)) {
+        text = substr(line, RSTART + 1, RLENGTH - 2)
+        line = substr(line, 1, RSTART - 1) "<code>" text "</code>" substr(line, RSTART + RLENGTH)
+    }
+    return line
+}
+
+function process_bold(line, bold_pattern, matched, text) {
+    bold_pattern = "\\*\\*[^\\*]+\\*\\*"
+    while (match(line, bold_pattern)) {
+        text = substr(line, RSTART + 2, RLENGTH - 4)
+        line = substr(line, 1, RSTART - 1) "<strong>" text "</strong>" substr(line, RSTART + RLENGTH)
+    }
+    return line
+}
+
+function process_italic(line, italic_pattern, matched, text) {
+    italic_pattern = "\\*[^\\*]+\\*"
+    while (match(line, italic_pattern)) {
+        text = substr(line, RSTART + 1, RLENGTH - 2)
+        line = substr(line, 1, RSTART - 1) "<em>" text "</em>" substr(line, RSTART + RLENGTH)
+    }
+    return line
+}
+
+function process_line(line) {
+    line = process_image(line)
+    line = process_links(line)
+    line = process_inline_code(line)
+    line = process_bold(line)
+    line = process_italic(line)
+    return line
+}
+
+function process_table_line(line, is_header, n) {
+    # Remove leading and trailing pipe characters
+    gsub(/^\|/, "", line)
+    gsub(/\|$/, "", line)
+    # Split the line into cells
+    n = split(line, cells, /\|/)
+    # Remove leading and trailing whitespace from each cell
+    for (i = 1; i <= n; i++) {
+        gsub(/^[ \t]+/, "", cells[i])
+        gsub(/[ \t]+$/, "", cells[i])
+    }
+
+    # Print the table row
+    print  "<tr>"
+    for (i = 1; i <= n; i++) {
+        if (is_header) tag = "th"
+        else tag = "td"
+        print "<" tag ">" process_line(cells[i]) "</" tag ">"
+    }
+    print "</tr>"
+}
+
+function html_escape(input,   result) {
+    result = input
+    gsub(/&/, "\\&amp;", result)
+    gsub(/</, "\\&lt;", result)
+    gsub(/>/, "\\&gt;", result)
+    gsub(/\\"/, "\\&quot;", result)
+    gsub(/'/, "\\&#39;", result)
+    return result
+}
+
+function close_tags() {
+    if (inside_ul) {
+        print "</ul>"
+        inside_ul = 0
+    }
+    if (inside_ol) {
+        print "</ol>"
+        inside_ol = 0
+    }
+    if (inside_table) {
+        print "</tbody>"
+        print "</table>"
+        inside_table = 0
+    }
+    if (inside_blockquote) {
+        print "</blockquote>"
+        inside_blockquote = 0
+    }
+}
+
+##########################################################
+# Main Routine
+
+BEGIN {
+    inside_ul = 0
+    inside_ol = 0
+    inside_code_block = 0
+    inside_table = 0
+    inside_blockquote = 0
+}
+
+
+# Code block
+/^```/ {
+    if (inside_code_block) {
+        print "</code></pre>"
+        inside_code_block = 0
+    } else {
+        printf "<pre><code class=\"language-" substr($0, 4) "\">"
+        inside_code_block = 1
+    }
+    next
+}
+
+inside_code_block {
+    if (inside_code_block == 2) {
+        print ""
+    }
+    inside_code_block = 2
+    printf html_escape($0)
+    next
+}
+
+# Empty line
+/^$/ {
+    close_tags()
+    next
+}
+
+# Title
+/^[#]{1,6} / {
+    print "<h" length($1) ">" process_line(substr($0, index($0, " ") + 1)) "</h" length($1) ">"
+    next
+}
+
+# Blockquote
+/^> / {
+    if (!inside_blockquote) {
+        print "<blockquote>"
+        inside_blockquote = 1
+    }
+    print "<p>" process_line(substr($0, 3)) "</p>"
+    next
+}
+
+# Unordered list
+/^- / {
+    if (!inside_ul) {
+        print "<ul>"
+        inside_ul = 1
+    }
+    print "<li>" process_line(substr($0, 3)) "</li>"  # - を取り除く
+    next
+}
+
+# Ordered list
+/^[0-9]+\. / {
+    if (!inside_ol) {
+        print "<ol>"
+        inside_ol = 1
+    }
+    print "<li>" process_line(substr($0, index($0, " ") + 1)) "</li>"  # 数字とスペースを取り除く
+    next
+}
+
+# Table
+/^\|/ {
+    if (inside_table == 0) {
+        inside_table = 2
+        print "<table>"
+        print "<thead>"
+        process_table_line($0, 1)
+        print "</thead>"
+        print "<tbody>"
+    } else if (inside_table == 1) {
+      process_table_line($0, 0)
+    } else if (inside_table == 2) {
+        inside_table = 1
+    } else {
+      print "Error: invalid table format" > "/dev/stderr"
+      exit 1
+    }
+
+    next
+}
+
+# Text
+/.+/ {
+    print "<p>" process_line($0) "</p>"
+    next
+}
+
+END {
+  close_tags()
+}
