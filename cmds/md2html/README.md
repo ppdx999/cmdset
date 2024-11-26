@@ -3,9 +3,8 @@
 A command to convert Markdown to HTML.
 
 ## Installation
-The installation method depends on the implementation language.
 
-For example, in the case of an AWK implementation, it is a standalone script with no dependencies. Simply copy it to a suitable location and start using it.
+md2html is written in awk and is a standalone script file with no dependencies, so you can use it by copying it to a suitable location.
 
 ## Features
 You can convert [this Markdown](test.md) into [this HTML](test.html).
