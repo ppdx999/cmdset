@@ -13,11 +13,17 @@ $tmp.gawk test.md > $tmp.html
 diff -u test.html $tmp.html
 if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
 
-
 printf "Testing nawk... "
 sed -e '1s/awk/nawk/' awk/md2html > $tmp.nawk
 chmod +x $tmp.nawk
 $tmp.nawk test.md >  $tmp.html
+diff -u test.html $tmp.html
+if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
+
+printf "Testing mawk... "
+sed -e '1s/awk/mawk/' awk/md2html > $tmp.mawk
+chmod +x $tmp.mawk
+$tmp.mawk test.md > $tmp.html
 diff -u test.html $tmp.html
 if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
 
