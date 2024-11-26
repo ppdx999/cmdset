@@ -17,11 +17,18 @@ print("code block")
 ```
 
 - list item 1
+    - sub list item 1
+        - sub sub list item 1
+        - sub sub list item 2
+    - sub list item 2
 - list item 2
 - list item 3
 
 1. ordered list item 1
+    1. sub ordered list item 1
 2. ordered list item 2
+    - sub list item 1
+    - sub list item 2
 3. ordered list item 3
 
 [link](https://github.com)

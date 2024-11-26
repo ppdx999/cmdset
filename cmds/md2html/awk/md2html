@@ -119,13 +119,9 @@ function html_escape(input,   result) {
 }
 
 function close_tags() {
-    if (inside_ul) {
-        print "</ul>"
-        inside_ul = 0
-    }
-    if (inside_ol) {
-        print "</ol>"
-        inside_ol = 0
+    if (inside_list) {
+        print "</" current_list_tag ">"
+        inside_list = 0
     }
     if (inside_table) {
         print "</tbody>"
@@ -142,8 +138,9 @@ function close_tags() {
 # Main Routine
 
 BEGIN {
-    inside_ul = 0
-    inside_ol = 0
+    prev_indent = 0
+    inside_list = 0
+    current_list_tag = ""
     inside_code_block = 0
     inside_table = 0
     inside_blockquote = 0
@@ -194,22 +191,41 @@ inside_code_block {
 }
 
 # Unordered list
-/^- / {
-    if (!inside_ul) {
-        print "<ul>"
-        inside_ul = 1
+/^ *- / {
+     indent = length($0)
+     gsub(/ *- /, "", $0)
+     indent = indent - length($0)
+    if (!inside_list) {
+      print "<ul>"
+      inside_list = 1
+    } else if (indent > prev_indent) {
+      print "<ul>"
+    } else if (indent < prev_indent) {
+      print "</" current_list_tag ">"
     }
-    print "<li>" process_line(substr($0, 3)) "</li>"  # - を取り除く
+
+    print "<li>" process_line($0) "</li>"
+    current_list_tag = "ul"
+    prev_indent = indent
     next
 }
 
 # Ordered list
-/^[0-9]+\. / {
-    if (!inside_ol) {
+/^ *[0-9]+\. / {
+    indent = length($0)
+    gsub(/ *[0-9]+\. /, "", $0)
+    indent = indent - length($0)
+    if (!inside_list) {
         print "<ol>"
-        inside_ol = 1
+        inside_list = 1
+    } else if (indent > prev_indent) {
+        print "<ol>"
+    } else if (indent < prev_indent) {
+        print "</" current_list_tag ">"
     }
-    print "<li>" process_line(substr($0, index($0, " ") + 1)) "</li>"  # 数字とスペースを取り除く
+    print "<li>" process_line($0) "</li>"
+    prev_indent = indent
+    current_list_tag = "ol"
     next
 }
 
