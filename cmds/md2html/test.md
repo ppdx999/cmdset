@@ -37,3 +37,6 @@ print("code block")
 | header 1 | header 2 |
 | -------- | -------- |
 | cell 1   | cell 2   |
+
+
+*日本語*も**書けます**。
