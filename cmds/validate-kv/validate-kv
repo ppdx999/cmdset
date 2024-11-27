@@ -12,15 +12,18 @@ function usage() {
 BEGIN {
   # Parse Options
   for (i = 1; i < ARGC; i++) {
-    if ( ARGV[i] == "-h" ||
-         ARGV[i] == "--help" ||
-         ARGV[i] == "-v" ||
-         ARGV[i] == "--version" ||
-         ARGC == 1 )
+    if ( ARGV[i] == "--") {
+      break
+    } else if ( ARGV[i] == "-h"         ||
+                ARGV[i] == "--help"     ||
+                ARGV[i] == "-v"         ||
+                ARGV[i] == "--version"  ||
+                ARGC == 1                )
     {
       usage()
     }
   }
+  # remove script name
   delete ARGV[1]
 }
 
