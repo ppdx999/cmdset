@@ -1,0 +1,35 @@
+#!/bin/sh
+
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' validate-kv > $tmp-validate-kv.gawk
+chmod +x $tmp-validate-kv.gawk
+
+sed -e '1s/awk/nawk/' validate-kv > $tmp-validate-kv.nawk
+chmod +x $tmp-validate-kv.nawk
+
+# We can't use `mawk` because it cannot count multibyte characters correctly.
+# sed -e '1s/awk/mawk/' validate-kv > $tmp-validate-kv.mawk
+# chmod +x $tmp-validate-kv.mawk
+
+cmds="./validate-kv $tmp-validate-kv.gawk $tmp-validate-kv.nawk"
+
+for cmd in $cmds; do
+  printf "###"
+  printf "${cmd##*.}"
+  echo "###"
+
+  printf "  Running test example-success ... "
+  $cmd tests/example-success-rule tests/example-success-data > $tmp-test-example-success-actual
+  if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+  diff -u tests/example-success-expected $tmp-test-example-success-actual
+  if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; exit 1; fi
+
+  printf "  Running test example-fail ... "
+  $cmd tests/example-fail-rule tests/example-fail-data > $tmp-test-example-fail-actual
+  if [ $? -eq 0 ]; then echo "NG"; exit 1; fi
+  diff -u tests/example-fail-expected $tmp-test-example-fail-actual
+  if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; exit 1; fi
+done
+
+rm -f $tmp-*
