@@ -4,7 +4,6 @@ function usage() {
     print "validate-kv - validate key-value format data"
     print ""
     print "Usage: validate-kv <rule file> <data file>"
-    print "Options: if <target file> is not specified, read from stdin"
     print "Version: fujis Tue Nov 26 18:27:03 JST 2024"
     exit 1
 }
