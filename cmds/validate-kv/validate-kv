@@ -48,7 +48,7 @@ NR == FNR {
       print $1 " is not alnum"
       exit_code = 1
     }
-  } else if (rule_list[1] == "integer") {
+  } else if (rule_list[1] == "int") {
     if ($2 !~ /^[0-9]+$/) {
       print $1 " is not integer"
       exit_code = 1
@@ -72,12 +72,12 @@ NR == FNR {
 
   for (i = 2; i <= n; i++) {
     if (rule_list[i] == "max") {
-      if (rule_list[1] == "integer" || rule_list[1] == "float") {
+      if (rule_list[1] == "int" || rule_list[1] == "float") {
         if ($2 > rule_list[++i]) {
           print $1 " is greater than " rule_list[i]
           exit_code = 1
         }
-      } else if (rule_list[1] == "string") {
+      } else if (rule_list[1] == "text") {
         if (length($2) > rule_list[++i]) {
           print $1 " is greater than " rule_list[i]
           exit_code = 1

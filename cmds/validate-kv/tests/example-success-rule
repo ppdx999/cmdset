@@ -1,3 +1,3 @@
 username alnum
-age      integer
-hobby    string max 18
+age      int
+hobby    text max 18
