@@ -262,3 +262,48 @@ BNF: `<論理式> <論理式型中置二項演算子> <論理式>`
 :assert_true      require_one_of [ email phone_number ]
 :assert_true      zipcode is_exist  ==  address is_exist
 ```
+
+# Realworld Example
+
+実業務での利用例として、システム管理者がユーザーを新規に追加するときのユーザー登録情報のバリデーションルールを考えます。
+
+```
+$ cat rule
+# 項目
+:required   username         is_alnum    min_length 4    max_length 64
+:required   role             is_one_of [ employee area_manager system_admin ]
+:optional   age              is_int    min_value 0
+:optional   gender           is_one_of [ male female others ]
+:optional   description      is_text    min_length 1    max_length 128
+:optional   zipcode          is_zipcode_jp
+:optional   address          is_text    min_length 1    max_length 1024
+:optional   email            is_email
+:optional   phone_number     is_phone_number_jp
+:required   primary_contact  is_one_of [ email phone_number ]
+
+# 条件
+:assert_true      require_one_of [ email phone_number ]
+:assert_true      zipcode is_exist  ==  address is_exist
+:assert_true      primary_contact == email    implies     email is_exist
+:assert_true      primary_contact == phone_number    implies    phone_number is_exist
+```
+
+このルールファイルは以下のルールを定義しています。
+
+- `username`は必須項目であり、半角英数字で構成され、4文字以上64文字以下であること
+- `role`は必須項目であり、`employee`, `area_manager`, `system_admin`のいずれかであること
+- `age`は任意項目であり、0以上の整数であること
+- `gender`は任意項目であり、`male`, `female`, `others`のいずれかであること
+- `description`は任意項目であり、1文字以上128文字以下のテキストであること
+- `zipcode`は任意項目であり、日本の郵便番号形式であること
+- `address`は任意項目であり、1文字以上1024文字以下のテキストであること
+- `email`は任意項目であり、有効なメールアドレス形式であること
+- `phone_number`は任意項目であり、日本の電話番号形式であること
+- `primary_contact`は必須項目であり、`email`, `phone_number`のいずれかであること
+- `email`または`phone_number`のいずれかが必須であること
+- `zipcode`と`address`は両方存在するか、どちらも存在しないこと
+- `primary_contact`が`email`の場合、`email`が存在すること
+- `primary_contact`が`phone_number`の場合、`phone_number`が存在すること
+
+
+システム管理者からHTTP POSTなどで送信されたデータをkey-value形式で一時ファルに保存し、このルールを使ってバリデーションすることで、ユーザー登録情報の正当性を簡単に確認することができます。
