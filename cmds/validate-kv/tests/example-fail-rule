@@ -1,3 +1,0 @@
-username alnum
-age      int
-hobby    text max 17

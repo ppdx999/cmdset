@@ -19,17 +19,16 @@ for cmd in $cmds; do
   printf "${cmd##*.}"
   echo "###"
 
-  printf "  Running test example-success ... "
-  $cmd tests/example-success-rule tests/example-success-data > $tmp-test-example-success-actual
-  if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
-  diff -u tests/example-success-expected $tmp-test-example-success-actual
-  if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; exit 1; fi
-
-  printf "  Running test example-fail ... "
-  $cmd tests/example-fail-rule tests/example-fail-data > $tmp-test-example-fail-actual
-  if [ $? -eq 0 ]; then echo "NG"; exit 1; fi
-  diff -u tests/example-fail-expected $tmp-test-example-fail-actual
-  if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; exit 1; fi
+  ls tests | while read dir; do
+    dir=tests/$dir
+    testname=$(basename $dir)
+    printf "  Running test $testname ... "
+    expected_exit_code=$(cat $dir/exit-code)
+    $cmd $dir/rule $dir/data > $tmp-$testname-stdout
+    if [ $? -ne $expected_exit_code ]; then echo "NG"; exit 1; fi
+    diff -u $dir/stdout $tmp-$testname-stdout
+    if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; exit 1; fi
+  done
 done
 
 rm -f $tmp-*
