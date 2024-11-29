@@ -10,12 +10,9 @@ BEGIN {
   # Remove the script path
   delete ARGV[1]
   # Parse Options
-  if ( \
-    ARGV[i] == "-h"        ||
-    ARGV[i] == "--help"    ||
-    ARGV[i] == "-v"        ||
-    ARGV[i] == "--version" ||
-    ARGC == 1              \
+  if ( ARGV[i] == "-h" || ARGV[i] == "--help"    ||
+       ARGV[i] == "-v" || ARGV[i] == "--version" ||
+       ARGC == 1       \
   ){
     printerr("embed - embed data into a template file using a keyword")
     printerr("")
