@@ -2,26 +2,26 @@
 tmp=/tmp/$0.$$
 
 printf "Testing awk ... "
-./awk/md2html test.md > $tmp.html
+./md2html test.md > $tmp.html
 diff -u test.html $tmp.html
 if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
 
 printf "Testing gawk... "
-sed -e '1s/awk/gawk/' awk/md2html > $tmp.gawk
+sed -e '1s/awk/gawk/' md2html > $tmp.gawk
 chmod +x $tmp.gawk
 $tmp.gawk test.md > $tmp.html
 diff -u test.html $tmp.html
 if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
 
 printf "Testing nawk... "
-sed -e '1s/awk/nawk/' awk/md2html > $tmp.nawk
+sed -e '1s/awk/nawk/' md2html > $tmp.nawk
 chmod +x $tmp.nawk
 $tmp.nawk test.md >  $tmp.html
 diff -u test.html $tmp.html
 if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
 
 printf "Testing mawk... "
-sed -e '1s/awk/mawk/' awk/md2html > $tmp.mawk
+sed -e '1s/awk/mawk/' md2html > $tmp.mawk
 chmod +x $tmp.mawk
 $tmp.mawk test.md > $tmp.html
 diff -u test.html $tmp.html

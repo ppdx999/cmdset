@@ -1,25 +1,24 @@
 #!/usr/bin/env -S awk -f ${_} --
 
-function usage() {
-    print "Converts a Markdown file to HTML"
-    print ""
-    print "Usage: md2html [file]"
-    print "Options: if file is not specified, read from stdin"
-    print "Version: fujis Tue Nov 26 18:27:03 JST 2024"
-    exit 1
+function printerr(msg) {
+  print msg > "/dev/stderr"
 }
 
 BEGIN {
   # Parse Options
-  for (i = 1; i < ARGC; i++) {
-    if ( ARGV[i] == "-h" ||
-         ARGV[i] == "--help" ||
-         ARGV[i] == "-v" ||
-         ARGV[i] == "--version" ||
-         ARGC == 1 )
-    {
-      usage()
-    }
+  if ( \
+       ARGC == 2              ||
+       ARGV[2] == "-h"        ||
+       ARGV[2] == "--help"    ||
+       ARGV[2] == "-v"        ||
+       ARGV[2] == "--version" \
+  ) {
+    printerr("Converts a Markdown file to HTML")
+    printerr("")
+    printerr("Usage: md2html [file]")
+    printerr("Options: if file is not specified, read from stdin")
+    printerr("Version: fujis Tue Nov 26 18:27:03 JST 2024")
+    exit 1
   }
   delete ARGV[1]
 }
