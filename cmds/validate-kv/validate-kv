@@ -1,10 +1,10 @@
 #!/usr/bin/env -S awk -f ${_} --
 
 function usage() {
-    print "validate-kv - validate key-value format data"
-    print ""
-    print "Usage: validate-kv <rule file> <data file>"
-    print "Version: fujis Tue Nov 26 18:27:03 JST 2024"
+    print "validate-kv - validate key-value format data" > "/dev/stderr"
+    print "" > "/dev/stderr"
+    print "Usage: validate-kv <rule file> <data file>" > "/dev/stderr"
+    print "Version: fujis Tue Nov 26 18:27:03 JST 2024" > "/dev/stderr"
     exit 1
 }
 
@@ -69,6 +69,7 @@ NR == FNR {
 
 # Validate data
 {
+  print $0
   key = $1;
   sub(key, "", $0);
   sub(/^ */, "", $0);
@@ -84,37 +85,36 @@ NR == FNR {
 
   for (i = 1; i <= n; i++) {
     rule = rule_list[i]
-    invalid_rule = ""
 
     if (rule in rule_and_regex_map) {
       if (value !~ rule_and_regex_map[rule]) {
         exit_code = 1
-        print key, rule
+        print key, rule > "/dev/stderr"
       }
     } else if (rule == "min_length") {
       if (length(value) < rule_list[++i]) {
         exit_code = 1
-        print key, "min_length", rule_list[i]
+        print key, "min_length", rule_list[i] > "/dev/stderr"
       }
     } else if (rule == "max_length") {
       if (length(value) > rule_list[++i]) {
         exit_code = 1
-        print key, "max_length", rule_list[i]
+        print key, "max_length", rule_list[i] > "/dev/stderr"
       }
     } else if (rule == "min_value") {
       if (value + 0 < rule_list[++i] + 0) {
         exit_code = 1
-        print key, "min_value", rule_list[i]
+        print key, "min_value", rule_list[i] > "/dev/stderr"
       }
     } else if (rule == "max_value") {
       if (value + 0 > rule_list[++i] + 0) {
         exit_code = 1
-        print key, "max_value", rule_list[i]
+        print key, "max_value", rule_list[i] > "/dev/stderr"
       }
     } else if (rule == "regex") {
       if (value !~ rule_list[++i]) {
         exit_code = 1
-        print key, "regex", rule_list[i]
+        print key, "regex", rule_list[i] > "/dev/stderr"
       }
     } else if (rule == "one_of[") {
       while (i <= n && rule_list[++i] != "]") {
@@ -124,28 +124,23 @@ NR == FNR {
       sub(/^ /, "", msg)
       if (rule_list[i] == "]") {
         exit_code = 1
-        print key, "one_of[", msg, "]"
+        print key, "one_of[", msg, "]" > "/dev/stderr"
       } else while (rule_list[++i] != "]") {
         if (i > n) {
-          print "Syntax error: missing ']'"
+          print "Syntax error: missing ']'" > "/dev/stderr"
           break
         }
       }
     } else {
       exit_code = 1
-      print "unknown_rule", rule
-    }
-
-    if (invalid_rule != "") {
-      print key invalid_rule
-      exit_code = 1
+      print "unknown_rule", rule > "/dev/stderr"
     }
   }
 }
 
 END {
   for (key in required) {
-    print key " required"
+    print key " required" > "/dev/stderr"
     exit_code = 1
   }
   exit exit_code

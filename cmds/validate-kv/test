@@ -25,11 +25,15 @@ for cmd in $cmds; do
     expected_exit_code=$(cat $dir/exit-code)
 
     # Run test
-    $cmd $dir/rule $dir/data > $tmp-$testname-stdout
+    $cmd $dir/rule $dir/data 2> $tmp-$testname-stderr > $tmp-$testname-stdout
 
     # Check result
     if [ $? -ne $expected_exit_code ]; then echo "$testname ... NG"; exit 1; fi
-    diff -u $dir/stdout $tmp-$testname-stdout
+    # validate-kv output input data to stdout
+    diff -u $dir/data $tmp-$testname-stdout
+    if [ $? -ne 0 ]; then echo "$testname ... NG"; exit 1; fi
+    # validate-kv outputs error messages to stderr
+    diff -u $dir/stderr $tmp-$testname-stderr
     if [ $? -ne 0 ]; then echo "$testname ... NG"; exit 1; fi
   done
 
