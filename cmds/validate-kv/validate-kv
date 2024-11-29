@@ -41,6 +41,9 @@ BEGIN {
 # Parse Rule
 NR == FNR {
   key = $1; value = substr($0, index($0, $2))
+  # Optional rule can be just ignored because this
+  # program handles all fileds as optional in default.
+  gsub(/optional/, "", value)
   if (gsub(/required/, "", value)) {
     required[key] = 1
   }
