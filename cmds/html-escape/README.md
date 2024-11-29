@@ -30,34 +30,3 @@ echo "<p>Hello & 'World' \"!\"</p>" | escape-html
 | `&`                | `&amp;`        |
 | `"`                | `&quot;`       |
 | `'`                | `&#39;`        |
-
----
-
-## Examples
-
-### Escaping an Entire File
-
-You can escape the entire content of a file and save it to a new file.
-
-```sh
-escape-html < input.html > escaped.html
-```
-
-### Combining with Other Commands
-
-You can use it with commands like `cat` or `grep` in a pipeline.
-
-```sh
-cat input.html | grep "<p>" | escape-html
-```
-
----
-
-## Notes
-
-- HTML escaping does not disable tags. If you need to prevent XSS or sanitize inputs, consider using appropriate libraries or frameworks.
-- Be mindful of memory usage when processing very large inputs.
-
----
-
-By using `escape-html`, you can ensure the safety of your HTML output and prevent unexpected rendering issues.
