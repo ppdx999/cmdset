@@ -69,6 +69,9 @@ NR == FNR {
     if ( rule == "alnum" && value !~ /^[a-zA-Z0-9]+$/) 
         invalid_rule = invalid_rule " alnum"
 
+    if ( rule == "alpha" && value !~ /^[a-zA-Z]+$/)
+        invalid_rule = invalid_rule " alpha"
+
     if ( rule == "min_length" && length(value) < rule_list[++i])
         invalid_rule = invalid_rule " min_length " rule_list[i]
 
