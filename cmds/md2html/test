@@ -1,32 +1,152 @@
 #!/bin/bash
+
 tmp=/tmp/$0.$$
 
-printf "Testing awk ... "
-./md2html test.md > $tmp.html
-diff -u test.html $tmp.html
-if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
 
-printf "Testing gawk... "
-sed -e '1s/awk/gawk/' md2html > $tmp.gawk
-chmod +x $tmp.gawk
-$tmp.gawk test.md > $tmp.html
-diff -u test.html $tmp.html
-if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
+sed -e '1s/awk/gawk/' md2html > $tmp-md2html.gawk
+chmod +x $tmp-md2html.gawk
 
-printf "Testing nawk... "
-sed -e '1s/awk/nawk/' md2html > $tmp.nawk
-chmod +x $tmp.nawk
-$tmp.nawk test.md >  $tmp.html
-diff -u test.html $tmp.html
-if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
+sed -e '1s/awk/nawk/' md2html > $tmp-md2html.nawk
+chmod +x $tmp-md2html.nawk
 
-printf "Testing mawk... "
-sed -e '1s/awk/mawk/' md2html > $tmp.mawk
-chmod +x $tmp.mawk
-$tmp.mawk test.md > $tmp.html
-diff -u test.html $tmp.html
-if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; fi
+sed -e '1s/awk/mawk/' md2html > $tmp-md2html.mawk
+chmod +x $tmp-md2html.mawk
 
-rm -f $tmp.*
+cmds="./md2html $tmp-md2html.gawk $tmp-md2html.nawk $tmp-md2html.mawk"
 
+cat <<'EOF' > $tmp.md
+# h1 title
+
+## h2 title
+
+### h3 title
+
+#### h4 title
+
+##### h5 title
+
+###### h6 title
+
+**bold text** and *italic text* and `inline-code`
+
+```python
+print("code block")
+```
+
+- list item 1
+    - sub list item 1
+        - sub sub list item 1
+        - sub sub list item 2
+    - sub list item 2
+- list item 2
+- list item 3
+
+1. ordered list item 1
+    1. sub ordered list item 1
+2. ordered list item 2
+    - sub list item 1
+    - sub list item 2
+3. ordered list item 3
+
+[link](https://github.com)
+
+![image](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
+
+> blockquote
+
+> multiple
+> lines
+> blockquote
+
+| header 1 | header 2 |
+| -------- | -------- |
+| cell 1   | cell 2   |
+
+
+*日本語*も**書けます**。
+EOF
+
+cat <<'EOF' > $tmp.html
+<h1>h1 title</h1>
+<h2>h2 title</h2>
+<h3>h3 title</h3>
+<h4>h4 title</h4>
+<h5>h5 title</h5>
+<h6>h6 title</h6>
+<p><strong>bold text</strong> and <em>italic text</em> and <code>inline-code</code></p>
+<pre><code class="language-python">print("code block")</code></pre>
+<ul>
+<li>list item 1</li>
+<ul>
+<li>sub list item 1</li>
+<ul>
+<li>sub sub list item 1</li>
+<li>sub sub list item 2</li>
+</ul>
+<li>sub list item 2</li>
+</ul>
+<li>list item 2</li>
+<li>list item 3</li>
+</ul>
+<ol>
+<li>ordered list item 1</li>
+<ol>
+<li>sub ordered list item 1</li>
+</ol>
+<li>ordered list item 2</li>
+<ul>
+<li>sub list item 1</li>
+<li>sub list item 2</li>
+</ul>
+<li>ordered list item 3</li>
+</ol>
+<p><a href="https://github.com">link</a></p>
+<p><img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="image"></p>
+<blockquote>
+<p>blockquote</p>
+</blockquote>
+<blockquote>
+<p>multiple</p>
+<p>lines</p>
+<p>blockquote</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>header 1</th>
+<th>header 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cell 1</td>
+<td>cell 2</td>
+</tr>
+</tbody>
+</table>
+<p><em>日本語</em>も<strong>書けます</strong>。</p>
+EOF
+
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+printf "%8s: " ${cmd##*.}
+
+$cmd $tmp.md > $tmp.html
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+diff -u $tmp.html $tmp.html
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
 exit 0
