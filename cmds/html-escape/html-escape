@@ -1,0 +1,33 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+######################################################################
+# Init
+function printerr(msg) {
+    print msg > "/dev/stderr"
+}
+
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[i] == "-h" || ARGV[i] == "--help"    ||
+       ARGV[i] == "-v" || ARGV[i] == "--version" ||
+       ARGC == 1       \
+  ){
+    printerr("html-escape - escape HTML special characters")
+    printerr("")
+    printerr("Usage: html-escape <file>")
+    exit 1
+  }
+}
+
+######################################################################
+# Main Routine
+{
+  gsub(/&/, "\\&amp;")
+  gsub(/</, "\\&lt;")
+  gsub(/>/, "\\&gt;")
+  gsub(/"/, "\\&quot;")
+  gsub(/'/, "\\&#39;")
+  print
+}

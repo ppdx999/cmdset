@@ -1,0 +1,46 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' html-escape > $tmp-html-escape.gawk
+chmod +x $tmp-html-escape.gawk
+
+sed -e '1s/awk/nawk/' html-escape > $tmp-html-escape.nawk
+chmod +x $tmp-html-escape.nawk
+
+sed -e '1s/awk/mawk/' html-escape > $tmp-html-escape.mawk
+chmod +x $tmp-html-escape.mawk
+
+cmds="./html-escape $tmp-html-escape.gawk $tmp-html-escape.nawk $tmp-html-escape.mawk"
+
+run_test() {
+  if [ "$(echo $2 | $1)" != "$3" ]; then
+    echo "Failed" $2 $3
+    exit 1
+  fi
+}
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+printf "%12s: " ${cmd##*.}
+
+run_test $cmd "<p>こんにちは & '世界' \"！\"</p>" "&lt;p&gt;こんにちは &amp; &#39;世界&#39; &quot;！&quot;&lt;/p&gt;"
+run_test $cmd "Hello < & > World" "Hello &lt; &amp; &gt; World"
+run_test $cmd "<script>alert('XSS');</script>" "&lt;script&gt;alert(&#39;XSS&#39;);&lt;/script&gt;"
+run_test $cmd "No special characters" "No special characters"
+run_test $cmd "5 > 3 && 4 < 10" "5 &gt; 3 &amp;&amp; 4 &lt; 10"
+run_test $cmd "'Single quotes' and \"double quotes\"" "&#39;Single quotes&#39; and &quot;double quotes&quot;"
+
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0
