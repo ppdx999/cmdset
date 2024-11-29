@@ -25,6 +25,14 @@ Options:
     rule file: ルールファイル
     data file: データファイル
 
+Exit Status:
+    0: バリデーション成功
+    1: バリデーションエラー
+
+Output:
+    標準出力: data fileの内容がそのまま出力されます
+    標準エラー出力: バリデーションエラーが発生した場合のに<key> <rule>の形式で出力されます
+
 Description:
     validate-kvは<rule file>に記載されたルールに従って
     <data file>のデータをバリデーションします。
@@ -57,11 +65,12 @@ username fujis
 
 ```sh
 $ validate-kv rule data-valid
+username fujis
 $ echo $?
 0
 ```
 
-バリデーションが成功した場合、コマンドは何も出力せず、終了ステータスは0になります。
+バリデーションが成功した場合、入力データがそのまま出力され、 終了ステータスは0になります。
 
 次に、バリデーションエラーが発生するデータを作成します。
 

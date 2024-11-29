@@ -31,6 +31,14 @@ Options:
     rule file: The file containing validation rules.
     data file: The file containing data to be validated.
 
+Exit Status:
+    0: Validation succeeded.
+    1: Validation failed.
+
+Output:
+    Standard Output: Outputs the contents of the data file as-is.
+    Standard Error: Outputs validation errors in the format <key> <rule>.
+    
 Description:
     validate-kv validates the data in <data file> according to
     the rules defined in <rule file>.
@@ -65,11 +73,12 @@ Run the `validate-kv` command.
 
 ```sh
 $ validate-kv rule data-valid
+username fujis
 $ echo $?
 0
 ```
 
-If validation succeeds, the command outputs nothing, and the exit status is `0`.
+If validation succeeds, the input data is output as-is, and the exit status is `0`.
 
 Now, create data that causes a validation error.
 
@@ -131,12 +140,16 @@ Examples: `username`, `age`, `email`
 | `time`                 | Ensures the value is in a valid time format.                           |
 | `zipcode_jp`           | Ensures the value is in a valid Japanese postal code format.           |
 
+---
+
 ### Comments and Formatting
 
 - Lines starting with `#` are treated as comments and ignored during validation.
 - Blank lines are ignored.
 - Tokens are separated by one or more spaces.
 - Add spaces for readability where appropriate.
+
+---
 
 ### Example
 
@@ -166,4 +179,6 @@ This rule file defines:
 - `phone_number`: Optional, valid Japanese phone number format.
 - `primary_contact`: Required, must be `email` or `phone_number`.
 
-By saving Key-Value formatted data (e.g., user registration info) into a temporary file and validating it with these rules, you can easily ensure data correctness.
+---
+
+By saving Key-Value formatted data (e.g., user registration info) into a temporary file and validating it with these rules, you can easily ensure data correctness. For example, you can validate data submitted via HTTP POST requests using this system.
