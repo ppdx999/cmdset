@@ -21,7 +21,7 @@ TODO: Add a link to the page explaining the Key-Value format.
 
 ## Usage
 
-```sh
+```txt
 validate-kv - A command for validating Key-Value formatted data
 
 Usage:

@@ -15,7 +15,7 @@ validate-kvはawkで実装されているため特別なインストールは不
 
 # Usage
 
-```sh
+```txt
 validate-kv - Key-Value形式のデータをバリデーションするコマンド
 
 Usage:
