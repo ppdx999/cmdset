@@ -141,6 +141,19 @@ NR == FNR {
       if (value !~ /^[0-9]{2,4}-[0-9]{2,4}-[0-9]{4}$/) {
         invalid_rule = invalid_rule " phone_number_jp"
       }
+    } else if (rule == "one_of[" ) {
+      while (i <= n && rule_list[++i] != "]") {
+        if (rule_list[i] == value) break
+        msg = msg " " rule_list[i]
+      }
+      if (rule_list[i] == "]") {
+        invalid_rule = invalid_rule " one_of[" msg " ]"
+      } else while (rule_list[++i] != "]") {
+        if (i > n) {
+          print "Syntax error: missing ']'"
+          break
+        }
+      }
     } else {
       invalid_rule = invalid_rule " unknown_rule " rule
     }

@@ -1,0 +1,3 @@
+trafic_light one_of[ red green blue ]
+trafic_light2 one_of[ red green blue
+trafic_light3 one_of[ red green blue
