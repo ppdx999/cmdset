@@ -40,8 +40,11 @@ BEGIN {
 
 # Parse Rule
 NR == FNR {
-  rule_map[$1] = substr($0, index($0, $2))
-  required[$1] = 1
+  key = $1; value = substr($0, index($0, $2))
+  if (gsub(/required/, "", value)) {
+    required[key] = 1
+  }
+  rule_map[key] = value
   next
 }
 
@@ -92,8 +95,6 @@ NR == FNR {
       if (length(value) > rule_list[++i]) {
         invalid_rule = invalid_rule " max_length " rule_list[i]
       }
-    } else if(rule == "required") {
-      # do nothing
     } else {
       invalid_rule = invalid_rule " unknown_rule " rule
     }
