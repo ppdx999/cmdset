@@ -110,6 +110,10 @@ NR == FNR {
       if (value !~ rule_list[++i]) {
         invalid_rule = invalid_rule " regex " rule_list[i]
       }
+    } else if (rule == "zipcode_jp") {
+      if (value !~ /^[0-9]{3}-[0-9]{4}$/) {
+        invalid_rule = invalid_rule " zipcode_jp"
+      }
     } else {
       invalid_rule = invalid_rule " unknown_rule " rule
     }
