@@ -15,20 +15,25 @@ chmod +x $tmp-validate-kv.nawk
 cmds="./validate-kv $tmp-validate-kv.gawk $tmp-validate-kv.nawk"
 
 for cmd in $cmds; do
-  printf "###"
-  printf "${cmd##*.}"
-  echo "###"
+  # printf "${cmd##*.} : "
+  printf "%12s: " ${cmd##*.}
 
   ls tests | while read dir; do
+    # Prepare test
     dir=tests/$dir
     testname=$(basename $dir)
-    printf "  Running test $testname ... "
     expected_exit_code=$(cat $dir/exit-code)
+
+    # Run test
     $cmd $dir/rule $dir/data > $tmp-$testname-stdout
-    if [ $? -ne $expected_exit_code ]; then echo "NG"; exit 1; fi
+
+    # Check result
+    if [ $? -ne $expected_exit_code ]; then echo "$testname ... NG"; exit 1; fi
     diff -u $dir/stdout $tmp-$testname-stdout
-    if [ $? -eq 0 ]; then echo "OK"; else echo "NG"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "$testname ... NG"; exit 1; fi
   done
+
+  if [ $? -eq 0 ]; then echo "OK"; fi
 done
 
 rm -f $tmp-*
