@@ -106,6 +106,10 @@ NR == FNR {
       if (value + 0 > rule_list[++i] + 0) {
         invalid_rule = invalid_rule " max_value " rule_list[i]
       }
+    } else if (rule == "regex") {
+      if (value !~ rule_list[++i]) {
+        invalid_rule = invalid_rule " regex " rule_list[i]
+      }
     } else {
       invalid_rule = invalid_rule " unknown_rule " rule
     }
