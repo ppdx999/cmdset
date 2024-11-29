@@ -31,6 +31,18 @@ BEGIN {
 # Main Routine
 BEGIN {
   exit_code = 0
+  rule_and_regex_map["int"] = "^-?[0-9]+$"
+  rule_and_regex_map["number"] = "^-?[0-9]+(\\.[0-9]+)?$"
+  rule_and_regex_map["digit"] = "^[0-9]+$"
+  rule_and_regex_map["email"] = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  rule_and_regex_map["alnum"] = "^[a-zA-Z0-9]+$"
+  rule_and_regex_map["alpha"] = "^[a-zA-Z]+$"
+  rule_and_regex_map["date"] = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+  rule_and_regex_map["time"] = "^[0-9]{2}:[0-9]{2}:[0-9]{2}$"
+  rule_and_regex_map["datetime"] = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$"
+  rule_and_regex_map["datetime_tz"] = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [+-][0-9]{2}:[0-9]{2}$"
+  rule_and_regex_map["zipcode_jp"] = "^[0-9]{3}-[0-9]{4}$"
+  rule_and_regex_map["phone_number_jp"] = "^[0-9]{2,4}-[0-9]{2,4}-[0-9]{4}$"
 }
 
 # Skip comments and empty lines
@@ -73,81 +85,45 @@ NR == FNR {
     rule = rule_list[i]
     invalid_rule = ""
 
-    if(rule == "int") {
-      if (value !~ /^-?[0-9]+$/) {
-        invalid_rule = invalid_rule " int"
+    if (rule in rule_and_regex_map) {
+      if (value !~ rule_and_regex_map[rule]) {
+        exit_code = 1
+        print key, rule
       }
-    } else if(rule == "number") {
-      if (value !~ /^-?[0-9]+(\.[0-9]+)?$/) {
-        invalid_rule = invalid_rule " number"
-      }
-    } else if(rule == "digit") {
-      if (value !~ /^[0-9]+$/) {
-        invalid_rule = invalid_rule " digit"
-      }
-    } else if(rule == "email") {
-      if (value !~ /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/) {
-        invalid_rule = invalid_rule " email"
-      }
-    } else if(rule == "alnum") {
-      if (value !~ /^[a-zA-Z0-9]+$/) {
-        invalid_rule = invalid_rule " alnum"
-      }
-    } else if(rule == "alpha") {
-      if (value !~ /^[a-zA-Z]+$/) {
-        invalid_rule = invalid_rule " alpha"
-      }
-    } else if(rule == "min_length") {
+    } else if (rule == "min_length") {
       if (length(value) < rule_list[++i]) {
-        invalid_rule = invalid_rule " min_length " rule_list[i]
+        exit_code = 1
+        print key, "min_length", rule_list[i]
       }
-    } else if(rule == "max_length") {
+    } else if (rule == "max_length") {
       if (length(value) > rule_list[++i]) {
-        invalid_rule = invalid_rule " max_length " rule_list[i]
+        exit_code = 1
+        print key, "max_length", rule_list[i]
       }
     } else if (rule == "min_value") {
       if (value + 0 < rule_list[++i] + 0) {
-        invalid_rule = invalid_rule " min_value " rule_list[i]
+        exit_code = 1
+        print key, "min_value", rule_list[i]
       }
     } else if (rule == "max_value") {
       if (value + 0 > rule_list[++i] + 0) {
-        invalid_rule = invalid_rule " max_value " rule_list[i]
+        exit_code = 1
+        print key, "max_value", rule_list[i]
       }
     } else if (rule == "regex") {
       if (value !~ rule_list[++i]) {
-        invalid_rule = invalid_rule " regex " rule_list[i]
+        exit_code = 1
+        print key, "regex", rule_list[i]
       }
-    } else if (rule == "date") {
-      if (value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) {
-        invalid_rule = invalid_rule " date"
-      }
-    } else if (rule == "time") {
-      if (value !~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/) {
-        invalid_rule = invalid_rule " time"
-      }
-    } else if (rule == "datetime") {
-      if (value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/) {
-        invalid_rule = invalid_rule " datetime"
-      }
-    } else if (rule == "datetime_tz") {
-      if (value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [+-][0-9]{2}:[0-9]{2}$/) {
-        invalid_rule = invalid_rule " datetime_tz"
-      }
-    } else if (rule == "zipcode_jp") {
-      if (value !~ /^[0-9]{3}-[0-9]{4}$/) {
-        invalid_rule = invalid_rule " zipcode_jp"
-      }
-    } else if (rule == "phone_number_jp") {
-      if (value !~ /^[0-9]{2,4}-[0-9]{2,4}-[0-9]{4}$/) {
-        invalid_rule = invalid_rule " phone_number_jp"
-      }
-    } else if (rule == "one_of[" ) {
+    } else if (rule == "one_of[") {
       while (i <= n && rule_list[++i] != "]") {
         if (rule_list[i] == value) break
         msg = msg " " rule_list[i]
       }
+      sub(/^ /, "", msg)
       if (rule_list[i] == "]") {
-        invalid_rule = invalid_rule " one_of[" msg " ]"
+        exit_code = 1
+        print key, "one_of[", msg, "]"
       } else while (rule_list[++i] != "]") {
         if (i > n) {
           print "Syntax error: missing ']'"
@@ -155,7 +131,8 @@ NR == FNR {
         }
       }
     } else {
-      invalid_rule = invalid_rule " unknown_rule " rule
+      exit_code = 1
+      print "unknown_rule", rule
     }
 
     if (invalid_rule != "") {
