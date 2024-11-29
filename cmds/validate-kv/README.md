@@ -1,6 +1,6 @@
 # validate-kv
 
-A command for validating Key-Value formatted data.
+A command for validating [Key-Value formatted data](#what-is-a-key-value-format-file).
 
 TODO: Add a link to the page explaining the Key-Value format.
 
@@ -182,3 +182,36 @@ This rule file defines:
 ---
 
 By saving Key-Value formatted data (e.g., user registration info) into a temporary file and validating it with these rules, you can easily ensure data correctness. For example, you can validate data submitted via HTTP POST requests using this system.
+
+## What is a Key-Value Format File?
+
+### Format
+
+```
+Field 1    Field 2
+```
+
+### Description
+
+- A file where each line represents a key-value pair consisting of Field 1 and Field 2.
+- Field 1 and Field 2 are separated by one or more consecutive spaces.
+- Field 1 contains the key, and Field 2 contains the value.
+- Field 2 can include strings containing spaces.
+
+### Example
+
+```
+id 0001
+first_name yamada
+last_name taro
+display_name taro yamada
+```
+
+This example represents data with the following keys and values:
+
+| Key           | Value        |
+|---------------|--------------|
+| id            | 0001         |
+| first_name    | yamada       |
+| last_name     | taro         |
+| display_name  | taro yamada  |
