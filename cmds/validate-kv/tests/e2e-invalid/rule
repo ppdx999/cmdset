@@ -1,0 +1,10 @@
+username         required    alnum    min_length 8    max_length 64
+role             required    one_of[ employee area_manager system_admin ]
+age              optional    int    min_value 0
+gender           optional    one_of[ male female others ]
+description      optional    text    min_length 1    max_length 128
+zipcode          optional    zipcode_jp
+address          optional    text    min_length 1    max_length 1024
+email            optional    email
+phone_number     optional    phone_number_jp
+primary_contact  required    one_of[ email phone_number ]

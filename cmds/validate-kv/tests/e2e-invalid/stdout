@@ -1,0 +1,5 @@
+username alnum
+username min_length 8
+gender one_of[ male female others ]
+zipcode zipcode_jp
+primary_contact required
