@@ -60,29 +60,43 @@ NR == FNR {
     rule = rule_list[i]
     invalid_rule = ""
 
-    if ( rule == "int" && value !~ /^-?[0-9]+$/)
+    if(rule == "int") {
+      if (value !~ /^-?[0-9]+$/) {
         invalid_rule = invalid_rule " int"
-
-    if ( rule == "number" && value !~ /^-?[0-9]+(\.[0-9]+)?$/)
+      }
+    } else if(rule == "number") {
+      if (value !~ /^-?[0-9]+(\.[0-9]+)?$/) {
         invalid_rule = invalid_rule " number"
-
-    if ( rule == "digit" && value !~ /^[0-9]+$/)
+      }
+    } else if(rule == "digit") {
+      if (value !~ /^[0-9]+$/) {
         invalid_rule = invalid_rule " digit"
-
-    if ( rule == "email" && value !~ /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+      }
+    } else if(rule == "email") {
+      if (value !~ /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/) {
         invalid_rule = invalid_rule " email"
-
-    if ( rule == "alnum" && value !~ /^[a-zA-Z0-9]+$/) 
+      }
+    } else if(rule == "alnum") {
+      if (value !~ /^[a-zA-Z0-9]+$/) {
         invalid_rule = invalid_rule " alnum"
-
-    if ( rule == "alpha" && value !~ /^[a-zA-Z]+$/)
+      }
+    } else if(rule == "alpha") {
+      if (value !~ /^[a-zA-Z]+$/) {
         invalid_rule = invalid_rule " alpha"
-
-    if ( rule == "min_length" && length(value) < rule_list[++i])
+      }
+    } else if(rule == "min_length") {
+      if (length(value) < rule_list[++i]) {
         invalid_rule = invalid_rule " min_length " rule_list[i]
-
-    if ( rule == "max_length" && length(value) > rule_list[++i])
+      }
+    } else if(rule == "max_length") {
+      if (length(value) > rule_list[++i]) {
         invalid_rule = invalid_rule " max_length " rule_list[i]
+      }
+    } else if(rule == "required") {
+      # do nothing
+    } else {
+      invalid_rule = invalid_rule " unknown_rule " rule
+    }
 
     if (invalid_rule != "") {
       print key invalid_rule
