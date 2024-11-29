@@ -17,10 +17,9 @@ BEGIN {
     ARGV[i] == "--version" ||
     ARGC == 1              \
   ){
-    printerr("inject-l - inject file to template by line")
+    printerr("embed - embed data into a template file using a keyword")
     printerr("")
-    printerr("Usage: inject-l <keyword> <template-file> <data-file>")
-    printerr("Description: Injects the string into the template file with the data file")
+    printerr("Usage: embed <keyword> <template-file> <data-file>")
     exit 1
   }
   keyword = ARGV[2] ; delete ARGV[2]

@@ -1,12 +1,11 @@
-# inject-l
+# embed
 
-`inject-l` is a simple command-line tool that replaces lines containing a specified keyword in a template file with the contents of a data file.
-
+`embed` is a simple command-line tool that embed data into a template file using a keyword
 
 ## Usage
 
 ```sh
-inject-l <keyword> <template-file> <data-file>
+embed <keyword> <template-file> <data-file>
 ```
 
 - `<keyword>`: The string in the template file to be replaced (e.g., `___MAIN_CONTENT___`).
@@ -37,10 +36,10 @@ $ cat <<EOF > content.html
 EOF
 ```
 
-Run the `inject-l` command to insert the data into the template:
+Run the `embed` command to insert the data into the template:
 
 ```sh
-$ inject-l ___MAIN_CONTENT___ template.html content.html
+$ embed ___MAIN_CONTENT___ template.html content.html
 <body>
 <h1>Title</h1>
 <main>

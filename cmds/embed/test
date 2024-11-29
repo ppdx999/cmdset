@@ -4,22 +4,22 @@
 # Prepare Test
 tmp=/tmp/$(basename $0).$(date +%s).$$
 
-sed -e '1s/awk/gawk/' inject-l > $tmp-inject-l.gawk
-chmod +x $tmp-inject-l.gawk
+sed -e '1s/awk/gawk/' embed > $tmp-embed.gawk
+chmod +x $tmp-embed.gawk
 
-sed -e '1s/awk/nawk/' inject-l > $tmp-inject-l.nawk
-chmod +x $tmp-inject-l.nawk
+sed -e '1s/awk/nawk/' embed > $tmp-embed.nawk
+chmod +x $tmp-embed.nawk
 
-sed -e '1s/awk/mawk/' inject-l > $tmp-inject-l.mawk
-chmod +x $tmp-inject-l.mawk
+sed -e '1s/awk/mawk/' embed > $tmp-embed.mawk
+chmod +x $tmp-embed.mawk
 
-cmds="./inject-l $tmp-inject-l.gawk $tmp-inject-l.nawk $tmp-inject-l.mawk"
+cmds="./embed $tmp-embed.gawk $tmp-embed.nawk $tmp-embed.mawk"
 
 ##########################################################################
 # Test Main Routine
 for cmd in $cmds; do
 
-printf "%10s: " ${cmd##*.}
+printf "%6s: " ${cmd##*.}
 
 #
 # Test Case 1
