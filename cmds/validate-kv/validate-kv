@@ -40,7 +40,10 @@ BEGIN {
 
 # Parse Rule
 NR == FNR {
-  key = $1; value = substr($0, index($0, $2))
+  key = $1;
+  sub(key, "", $0);
+  sub(/^ */, "", $0);
+  value = $0;
   # Optional rule can be just ignored because this
   # program handles all fileds as optional in default.
   gsub(/optional/, "", value)
@@ -53,7 +56,11 @@ NR == FNR {
 
 # Validate data
 {
-  key = $1; value = substr($0, index($0, $2))
+  key = $1;
+  sub(key, "", $0);
+  sub(/^ */, "", $0);
+  value = $0;
+
 
   # todo: error when ignore option is not set
   if (!(key in rule_map)) next
