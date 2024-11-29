@@ -41,6 +41,7 @@ BEGIN {
 # Parse Rule
 NR == FNR {
   rule_map[$1] = substr($0, index($0, $2))
+  required[$1] = 1
   next
 }
 
@@ -50,6 +51,8 @@ NR == FNR {
 
   # todo: error when ignore option is not set
   if (!(key in rule_map)) next
+
+  delete required[key]
 
   n = split(rule_map[key], rule_list, " ")
 
@@ -89,5 +92,9 @@ NR == FNR {
 }
 
 END {
+  for (key in required) {
+    print key " required"
+    exit_code = 1
+  }
   exit exit_code
 }
