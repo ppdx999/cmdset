@@ -5,6 +5,10 @@ function printerr(msg) {
 }
 
 BEGIN {
+  # Remove the script path from the arguments
+  # to prevent awk from interpreting it as a file
+  delete ARGV[1]
+
   # Parse Options
   if ( \
        ARGC == 2              ||
@@ -20,7 +24,6 @@ BEGIN {
     printerr("Version: fujis Tue Nov 26 18:27:03 JST 2024")
     exit 1
   }
-  delete ARGV[1]
 }
 
 ##########################################################
