@@ -43,6 +43,7 @@ BEGIN {
   rule_and_regex_map["datetime_tz"] = "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [+-][0-9]{2}:[0-9]{2}$"
   rule_and_regex_map["zipcode_jp"] = "^[0-9]{3}-[0-9]{4}$"
   rule_and_regex_map["phone_number_jp"] = "^[0-9]{2,4}-[0-9]{2,4}-[0-9]{4}$"
+  rule_and_regex_map["text"] = ".*"
 }
 
 # Skip comments and empty lines
