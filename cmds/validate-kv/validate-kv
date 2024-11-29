@@ -57,6 +57,9 @@ NR == FNR {
     rule = rule_list[i]
     invalid_rule = ""
 
+    if ( rule == "int" && value !~ /^-?[0-9]+$/)
+        invalid_rule = invalid_rule " int"
+
     if ( rule == "number" && value !~ /^-?[0-9]+(\.[0-9]+)?$/)
         invalid_rule = invalid_rule " number"
 
