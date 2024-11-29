@@ -66,6 +66,9 @@ NR == FNR {
     if ( rule == "digit" && value !~ /^[0-9]+$/)
         invalid_rule = invalid_rule " digit"
 
+    if ( rule == "email" && value !~ /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+        invalid_rule = invalid_rule " email"
+
     if ( rule == "alnum" && value !~ /^[a-zA-Z0-9]+$/) 
         invalid_rule = invalid_rule " alnum"
 
