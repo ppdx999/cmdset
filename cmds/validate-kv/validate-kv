@@ -117,6 +117,22 @@ NR == FNR {
       if (value !~ rule_list[++i]) {
         invalid_rule = invalid_rule " regex " rule_list[i]
       }
+    } else if (rule == "date") {
+      if (value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/) {
+        invalid_rule = invalid_rule " date"
+      }
+    } else if (rule == "time") {
+      if (value !~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/) {
+        invalid_rule = invalid_rule " time"
+      }
+    } else if (rule == "datetime") {
+      if (value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$/) {
+        invalid_rule = invalid_rule " datetime"
+      }
+    } else if (rule == "datetime_tz") {
+      if (value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} [+-][0-9]{2}:[0-9]{2}$/) {
+        invalid_rule = invalid_rule " datetime_tz"
+      }
     } else if (rule == "zipcode_jp") {
       if (value !~ /^[0-9]{3}-[0-9]{4}$/) {
         invalid_rule = invalid_rule " zipcode_jp"
