@@ -5,7 +5,7 @@
 # 
 dir_base=$(cd $(dirname $0)/..; pwd)
 dir_test=$(cd $(dirname $0); pwd)
-dir_sh=$dir_base/sh
+dir_sh=$dir_base
 dir_c=$dir_base/c
 tmp=/tmp/unhide-$$
 
