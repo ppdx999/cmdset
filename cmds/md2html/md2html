@@ -80,6 +80,7 @@ function process_italic(line, italic_pattern, matched, text) {
 }
 
 function process_line(line) {
+    line = html_escape(line)
     line = process_image(line)
     line = process_links(line)
     line = process_inline_code(line)
