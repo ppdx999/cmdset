@@ -1,19 +1,19 @@
 # embed-kv
 
-`embed-kv` は、テンプレートファイルにキーと値のペアを挿入するためのコマンドラインツールです。
+`embed-kv` is a command-line tool that embeds key-value pairs into a template file.
 
-# 使用方法
+# Usage
 
 ```sh
 embed-kv <template-file> <kv-file>
 ```
 
-- `<template-file>`: テンプレートファイルへのパス。
-- `<kv-file>`: 挿入するキーと値のペアを含むファイルへのパス。
+- `<template-file>`: Path to the template file.
+- `<data-file>`: Path to the file containing key-value pairs to be inserted into the template.
 
-# 例 1
+# Example 1
 
-`template` ファイル:
+`template` file:
 
 ```txt
 Hello ___USER_NAME___!
@@ -24,7 +24,7 @@ ___SENDER_NAME___
 Date: ___DATE___
 ```
 
-`kv` ファイル:
+`kv` file:
 
 ```txt
 USER_NAME John
@@ -32,7 +32,7 @@ SENDER_NAME Jane
 DATE 2021-01-01
 ```
 
-`embed-kv` コマンドを実行してテンプレートにキーと値のペアを挿入します:
+Run the `embed-kv` command to insert the key-value pairs into the template:
 
 ```sh
 $ embed-kv template.txt kv.txt
@@ -44,11 +44,9 @@ Jane
 Date: 2021-01-01
 ```
 
----
+# Example 2
 
-# 例 2
-
-テンプレートファイルを作成:
+Create a template file:
 
 ```sh
 $ cat <<EOF > template.html
@@ -67,19 +65,19 @@ ___error_password___
 EOF
 ```
 
-キーと値のペアファイルを作成:
+Create a key-value file:
 
 ```sh
-$ cat <<EOF > error_messages.kv
+$ cat <<EOF > content.kv
 ___error_username___ <p class="error">at least 3 characters long</p>
 ___error_password___ <p class="error">only alphanumeric characters allowed</p>
 EOF
 ```
 
-`embed-kv` コマンドを実行してテンプレートにキーと値のペアを挿入します:
+Run the `embed-kv` command to insert the key-value pairs into the template:
 
 ```sh
-$ embed-kv template.html error_messages.kv
+$ embed-kv template.html content.kv
 <body>
 <h1>Title</h1>
 <form>

@@ -1,0 +1,44 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+######################################################################
+# Init
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[i] == "-h" || ARGV[i] == "--help"    ||
+       ARGV[i] == "-v" || ARGV[i] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "embed-kv - embeds key-value pairs into a template file." > "/dev/stderr"
+    print ""                                                        > "/dev/stderr"
+    print "Usage: embed-kv <template-file> <data-file>"             > "/dev/std/stderr"
+    print "Version: fujis Tue Nov 26 18:27:03 JST 2024"             > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"             > "/dev/stderr"
+    exit 1
+  }
+  temp = ARGV[2]
+  ARGV[2] = ARGV[3]
+  ARGV[3] = temp
+}
+
+######################################################################
+# Main Routine
+
+# Read data file
+NR == FNR {
+  key = $1;
+  sub(key, "", $0);
+  sub(/^ */, "", $0);
+  data[key] = $0;
+  next
+}
+
+# Read template file
+{
+  for (key in data)
+    if(gsub(key, data[key]))
+      break
+
+  print
+}

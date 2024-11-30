@@ -1,0 +1,110 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' embed-kv > $tmp-embed-kv.gawk
+chmod +x $tmp-embed-kv.gawk
+
+sed -e '1s/awk/nawk/' embed-kv > $tmp-embed-kv.nawk
+chmod +x $tmp-embed-kv.nawk
+
+sed -e '1s/awk/mawk/' embed-kv > $tmp-embed-kv.mawk
+chmod +x $tmp-embed-kv.mawk
+
+cmds="./embed-kv $tmp-embed-kv.gawk $tmp-embed-kv.nawk $tmp-embed-kv.mawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+printf "%6s: " ${cmd##*.}
+
+#
+# Test Case 1
+#
+cat <<EOF > $tmp-template
+Hello USER_NAME!
+I hope you have a great day.
+
+Best regards,
+SENDER_NAME
+Date: DATE
+EOF
+
+cat <<EOF > $tmp-data
+USER_NAME John
+SENDER_NAME Jane
+DATE 2021-01-01
+EOF
+  
+cat <<EOF > $tmp-expected
+Hello John!
+I hope you have a great day.
+
+Best regards,
+Jane
+Date: 2021-01-01
+EOF
+
+$cmd $tmp-template $tmp-data > $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+diff -u $tmp-expected $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+
+#
+# Test Case 2
+#
+
+cat <<EOF > $tmp-template
+<body>
+<h1>Title</h1>
+<form>
+<label for="username">Username:</label>
+<input type="text" id="username" name="username">
+___error_username___
+<label for="password">Password:</label>
+<input type="password" id="password" name="password">
+___error_password___
+<button type="submit">Submit</button>
+</form>
+</body>
+EOF
+
+cat <<EOF > $tmp-data
+___error_username___ <p class="error">at least 3 characters long</p>
+___error_password___ <p class="error">only alphanumeric characters allowed</p>
+EOF
+
+cat <<EOF > $tmp-expected
+<body>
+<h1>Title</h1>
+<form>
+<label for="username">Username:</label>
+<input type="text" id="username" name="username">
+<p class="error">at least 3 characters long</p>
+<label for="password">Password:</label>
+<input type="password" id="password" name="password">
+<p class="error">only alphanumeric characters allowed</p>
+<button type="submit">Submit</button>
+</form>
+</body>
+EOF
+
+$cmd $tmp-template $tmp-data > $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+diff -u $tmp-expected $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0
