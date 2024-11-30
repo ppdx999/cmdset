@@ -1,13 +1,13 @@
-# embed
+# embed-l
 
-`embed` はキーワードを指定し、テンプレートファイル内のキーワードを含む行をデータファイルの内容で置き換えるシンプルなコマンドです。
+`embed-l` はキーワードを指定し、テンプレートファイル内のキーワードを含む行をデータファイルの内容で置き換えるシンプルなコマンドです。
 
 ---
 
 ## 使用方法
 
 ```sh
-embed <keyword> <template-file> <data-file>
+embed-l <keyword> <template-file> <data-file>
 ```
 
 - `<keyword>`: テンプレートファイル内で置き換え対象となる文字列 (例: `___MAIN_CONTENT___`)
@@ -39,10 +39,10 @@ $ cat <<EOF > content.html
 EOF
 ```
 
-`embed` コマンドを実行して、テンプレートにデータを挿入します。
+`embed-l` コマンドを実行して、テンプレートにデータを挿入します。
 
 ```sh
-$ embed ___MAIN_CONTENT___ template.html content.html
+$ embed-l ___MAIN_CONTENT___ template.html content.html
 <body>
 <h1>Title</h1>
 <main>

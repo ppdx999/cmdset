@@ -4,16 +4,16 @@
 # Prepare Test
 tmp=/tmp/$(basename $0).$(date +%s).$$
 
-sed -e '1s/awk/gawk/' embed > $tmp-embed.gawk
-chmod +x $tmp-embed.gawk
+sed -e '1s/awk/gawk/' embed-l > $tmp-embed-l.gawk
+chmod +x $tmp-embed-l.gawk
 
-sed -e '1s/awk/nawk/' embed > $tmp-embed.nawk
-chmod +x $tmp-embed.nawk
+sed -e '1s/awk/nawk/' embed-l > $tmp-embed-l.nawk
+chmod +x $tmp-embed-l.nawk
 
-sed -e '1s/awk/mawk/' embed > $tmp-embed.mawk
-chmod +x $tmp-embed.mawk
+sed -e '1s/awk/mawk/' embed-l > $tmp-embed-l.mawk
+chmod +x $tmp-embed-l.mawk
 
-cmds="./embed $tmp-embed.gawk $tmp-embed.nawk $tmp-embed.mawk"
+cmds="./embed-l $tmp-embed-l.gawk $tmp-embed-l.nawk $tmp-embed-l.mawk"
 
 ##########################################################################
 # Test Main Routine
