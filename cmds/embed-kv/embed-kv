@@ -36,9 +36,6 @@ NR == FNR {
 
 # Read template file
 {
-  for (key in data)
-    if(gsub(key, data[key]))
-      break
-
+  for (key in data) gsub(key, data[key])
   print
 }
