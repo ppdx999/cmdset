@@ -2,21 +2,19 @@
 
 ######################################################################
 # Init
-function printerr(msg) {
-    print msg > "/dev/stderr"
-}
-
 BEGIN {
   # Remove the script path
   delete ARGV[1]
   # Parse Options
-  if ( ARGV[i] == "-h" || ARGV[i] == "--help"    ||
-       ARGV[i] == "-v" || ARGV[i] == "--version" ||
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
        ARGC == 1       \
   ){
-    printerr("html-escape - escape HTML special characters")
-    printerr("")
-    printerr("Usage: html-escape <file>")
+    print "html-escape - escape HTML special characters" > "/dev/stderr"
+    print ""                                             > "/dev/stderr"
+    print "Usage: html-escape <file>"                    > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"  > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"  > "/dev/stderr"
     exit 1
   }
 }
