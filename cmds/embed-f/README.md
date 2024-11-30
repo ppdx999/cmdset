@@ -1,11 +1,11 @@
-# embed-l
+# embed-f
 
-`embed-l` is a simple command-line tool that embed data into a template file using a keyword
+`embed-f` is a simple command-line tool that embed data into a template file using a keyword
 
 ## Usage
 
 ```sh
-embed-l <keyword> <template-file> <data-file>
+embed-f <keyword> <template-file> <data-file>
 ```
 
 - `<keyword>`: The string in the template file to be replaced (e.g., `___MAIN_CONTENT___`).
@@ -36,10 +36,10 @@ $ cat <<EOF > content.html
 EOF
 ```
 
-Run the `embed-l` command to insert the data into the template:
+Run the `embed-f` command to insert the data into the template:
 
 ```sh
-$ embed-l ___MAIN_CONTENT___ template.html content.html
+$ embed-f ___MAIN_CONTENT___ template.html content.html
 <body>
 <h1>Title</h1>
 <main>
