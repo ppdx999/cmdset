@@ -1,0 +1,25 @@
+[fields]
+username         required    alnum    min_length 4    max_length 64
+role             required    one_of[ employee area_manager system_admin ]
+age              optional    int    min_value 0
+gender           optional    one_of[ male female others ]
+description      optional    text    min_length 1    max_length 128
+zipcode          optional    zipcode_jp
+address          optional    text    min_length 1    max_length 1024
+email            optional    email
+phone_number     optional    phone_number_jp
+primary_contact  required    one_of[ email phone_number ]
+
+
+[assertions]
+# 条件
+email is_exist  or  phone_number is_exist , "emailと電場番号のいずれかを入力してください"
+zipcode is_exist  ==  address is_exist
+( primary_contact == email and email is_exist ) or ( primary_contact == phone_number and phone_number is_exist )
+
+# 以下は email is_exist  or  phone_number is_existと同じ
+require_one_of [ email phone_number ]
+
+# 以下は( primary_contact == email and email is_exist ) or ( primary_contact == phone_number and phone_number is_exist )と同じ
+primary_contact == email    implies     email is_exist
+primary_contact == phone_number    implies    phone_number is_exist
