@@ -1,0 +1,52 @@
+#!/usr/bin/env -S LC_ALL=C awk -f ${_} --
+
+######################################################################
+# Init
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "urldecode - a small urldecode command"        > "/dev/stderr"
+    print ""                                             > "/dev/stderr"
+    print "Usage: urldecode <file>"                      > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"  > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"  > "/dev/stderr"
+    exit 1
+  }
+
+######################################################################
+# Prepare variables
+  # --- prepare
+  LF = sprintf("\n");
+  OFS = "";
+  ORS = "";
+  # --- prepare decoding
+  for (i=0; i<256; i++) {
+    l  = sprintf("%c",i);
+    k1 = sprintf("%02x",i); # hex in lower case
+    k2 = substr(k1,1,1) toupper(substr(k1,2,1)); # hex in lower case and upper case
+    k3 = toupper(substr(k1,1,1)) substr(k1,2,1); # hex in upper case and lower case
+    k4 = toupper(k1); # hex in upper case
+    p2c[k1]=l;p2c[k2]=l;p2c[k3]=l;p2c[k4]=l;
+  }
+}
+
+######################################################################
+# Main Routine
+{
+  gsub(/\+/, " ");
+  while (length($0)) {
+    if (match($0,/%[0-9A-Fa-f][0-9A-Fa-f]/)) {
+      print substr($0,1,RSTART-1), p2c[substr($0,RSTART+1,2)];
+      $0 = substr($0,RSTART+RLENGTH);
+    } else {
+      print $0;
+      break;
+    }
+  }
+  print LF;
+}
