@@ -27,3 +27,18 @@ for cmd in $cmds; do
   sudo cp -f "$cmd" "$install_dir"
 done
 
+
+cd "$project_root_dir/shellshoccar_cmds"
+cmds='
+mkcookie
+sessionf
+'
+
+for cmd in $cmds; do
+  if [ -z "$cmd" ]; then continue; fi
+  if [ "${cmd:0:1}" = '#' ]; then continue; fi
+
+  echo "Installing $cmd"
+  sudo rm -f "$install_dir/$cmd"
+  sudo cp -f "$cmd" "$install_dir"
+done

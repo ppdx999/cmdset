@@ -1,0 +1,288 @@
+#!/bin/sh
+ 
+######################################################################
+#
+# SESSIONF - Session File Manager (Useful for CGI Scripts)
+#
+# USAGE: sessionf <subcommand> [argument] ...
+#
+# * List of Subcommands:
+#   create ..... $0 create at=<template_path>
+#      1) Create a new session file into/with <template_path> if possible.
+#      2) Return the path of the session file with $?=0. ($?>0 when failure)
+#   validate ... $0 validate <id> at=<template_path> lifemin=<life_minutes>
+#      1) Validate the session file whose name is <id> in <template_path>.
+#      2) return $?=0 when the file is valid. ($?>0 when invalid)
+#      - To be valid, the session file must pass the 2 following check points.
+#        1. Does the file exist?
+#        2. Did the file modify within the last <life_minutes> minutes?
+#   reuse ...... $0 avail <id> at=<template_path> lifemin=<life_minutes>
+#      1) Validate the session file whose name is <id> in <template_path>.
+#      2) Update the timestamp of the file.
+#      3) Return the path with $?=0 when the file is valid. ($?>0 when invalid)
+#   avail ...... $0 avail <id> at=<template_path> lifemin=<life_minutes>
+#      1) Update the timestamp of the session file whose name is <id>
+#         if it is valid. Otherwise, Create a new one.
+#      2) Return the path of the available one with $?=0. ($?>0 when failure)
+#   renew ...... $0 renew <id> at=<template_path> lifemin=<life_minutes>
+#      1) Renew the session ID. (It means renaming the session file)
+#      2) Update the timestamp of the file.
+#      3) Return the nenewed file path with $?=0 when the original one is
+#         valid. ($?>0 when invalid)
+#   remove ..... $0 remove <id> at=<template_path> [lifemin=<life_minutes>]
+#      1) Remove the session file in <template_path>.
+#      2) Return $?=0 when succeed.
+#      - Wildcard is available. Also return $?=0 when no file to remove found.
+#      - When <life_minutes> is set, only the files which are older than that
+#        are removed.
+#
+# * On "validate", "reuse" and "remove" subcommands, you can set the session
+#   file directory in the <id> argument instead of the "at" argument.
+#
+# Written by Shell-Shoccar Japan (@shellshoccarjpn) on 2020-05-06
+#
+# This is a public-domain software (CC0). It means that all of the
+# people can use this for any purposes with no restrictions at all.
+# By the way, We are fed up with the side effects which are brought
+# about by the major licenses.
+#
+# The latest version is distributed at the following page.
+# https://github.com/ShellShoccar-jpn/misc-tools
+#
+######################################################################
+
+
+######################################################################
+# Initial Configuration
+######################################################################
+
+# === Initialize shell environment ===================================
+set -u
+umask 0022
+export LC_ALL=C
+export PATH="$(command -p getconf PATH 2>/dev/null)${PATH+:}${PATH-}"
+case $PATH in :*) PATH=${PATH#?};; esac
+export UNIX_STD=2003  # to make HP-UX conform to POSIX
+
+# === Define the functions for printing usage ========================
+print_usage_and_exit () {
+  cat <<-USAGE 1>&2
+	Usage   : ${0##*/} <subcommand> [argument] ...
+	          * See the header comment of me for detail
+	Version : 2020-05-06 22:42:19 JST
+	USAGE
+  exit 1
+}
+
+
+######################################################################
+# Register Functions
+######################################################################
+
+# === which command also works on Just a POSIX environment ($1:command name)
+which which >/dev/null 2>&1 || {
+  which() {
+    command -v "$1" 2>/dev/null | grep '^/' || {
+      echo 'which: not found' 1>&2 && (exit 1)
+    }
+  }
+}
+
+# === FUNC: Make a Temporary File ====================================
+# $1    : template filepath
+# ret   : 0 when succeeded
+# stdout: path of the generated temporary file
+mktempf1() {
+  # --- parameters, etc. ---------------------------------------------
+  n=10              # Max Times of Retrying
+  chrs='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_'
+                    # Available letters
+  LF=$(printf '\\\n_');LF=${LF%_}
+  # --- call built-in mktemp if exists -------------------------------
+  type mktemp >/dev/null 2>&1 && {
+    mktemp "$1"
+    return $?
+  }
+  # --- Count the numner of "X" --------------------------------------
+  Path_target_base=$(printf '%s' "$1" | sed 's/X*$//')
+  num_of_digits=$((${#1}-${#Path_target_base}))
+  # --- mktemp loop --------------------------------------------------
+  while [ $n -ge 0 ]; do
+    case $num_of_digits in
+      0) Path_target=$Path_target_base
+         n=0
+         ;;
+      *) # --- Generate Ramdom string --------------------------------
+         # calculate the number of words which required
+         nw=$(echo "${num_of_digits}*l(${#chrs})/11.09+1" | # 11.09=ln(65536)
+              bc -l                                       |
+              sed 's/\..*$//'                             )
+         # make a random hexadecimal digit
+         if [ -c /dev/urandom ]; then
+           hstr=$(dd if=/dev/urandom bs=2 count=$nw 2>/dev/null |
+                  od -A n -t x2 -v                              |
+                  tr 'abcdef ' 'ABCDEF\n'                       |
+                  tr -Cd 0123456789ABCDEF                       )
+         else
+           hstr=$( (ps -Ao pid,etime,pcpu,vsz; date)         |
+                  od -t d4 -A n -v                           |
+                  sed 's/[^0-9]\{1,\}/'"$LF"'/g'             |
+                  grep '[0-9]'                               |
+                  tail -n 42                                 |
+                  sed 's/.*\(.\{8\}\)$/\1/g'                 |
+                  awk 'BEGIN{a=-2147483648;}                 #
+                            {a+=$1;        }                 #
+                       END  {                                #
+                         srand(a);                           #
+                         for(i=0;i<'$nw';i++){               #
+                           printf("%02X",int(rand()*65536)); #
+                         }                                   #
+                       }'                                    )
+         fi
+         # make a random string from the hexadecimal digit
+         s=$(echo "obase=${#chrs};ibase=16;$hstr"                     |
+             bc                                                       |
+             tr -d '\\\n'                                             |
+             tr ' ' '\n'                                              |
+             awk 'BEGIN  {for(i=1;i<'$num_of_digits';i++){print 0;}}  #
+                  /[0-9]/{print;                                   }' |
+             awk 'BEGIN  {ORS="";                                     #
+                          s="'"$chrs"'";                              #
+                          for(i=0;i<length(s);i++){                   #
+                            c[i]=substr(s,i+1,1);                     #
+                          }                        }                  #
+                  /[0-9]/{print c[$0*1];           }'                 |
+             tail -c $num_of_digits                                   )
+         Path_target="$Path_target_base$s"
+         ;;
+    esac
+    # --- Making the file --------------------------------------------
+    (set -C; umask 177; : > "$Path_target") 2>/dev/null || {
+      [ -f "$Path_target" ] && { n=$((n-1)); continue; }
+      n=-1; break;
+    }
+    break
+  done
+  # --- print error message when failed to make a file ---------------
+  case "$n" in -1) return 1;; esac
+  # --- print the path of the file -----------------------------------
+  printf '%s\n' "$Path_target"
+  # --- return successfully ------------------------------------------
+  return 0
+}
+
+
+######################################################################
+# Parse Arguments
+######################################################################
+
+# === Get the options and the filepath ===============================
+# --- initialize option parameters -----------------------------------
+subcmd=''
+id=''
+dir=''
+idtmpl=''
+lifemin=''
+#
+# --- get them -------------------------------------------------------
+[ $# -ge 2 ] || print_usage_and_exit
+printf '%s\n' "$1" | grep -q '^[a-z]\{1,\}$' || print_usage_and_exit
+subcmd=$1
+shift
+if [ "$subcmd" != 'create' ]; then
+  id=${1##*/}
+  printf '%s\n' "$1" | grep -q '/' && dir=${1%/*} && [ -z "$dir" ] && dir='/'
+  shift
+fi
+for arg in ${1+"$@"}; do
+  case "$arg" in
+    at=*)
+      check=${arg#at=}
+      if printf '%s\n' "$check" | grep -q '/'; then
+        dir=${check%/*} && [ -z "$dir" ] && dir='/'
+        idtmpl=${check##*/}
+      else
+        dir='.'
+        idtmpl=$check
+      fi
+      [ -d "$dir" ] || {
+        printf '%s\n' "${0##*/}: directory not found"
+        exit 1
+      }
+      ;;
+    lifemin=*)
+      printf '%s\n' "$arg"                     |
+      grep '^lifemin=[0-9]\{1,\}$' >/dev/null ||
+      print_usage_and_exit
+      lifemin=${arg#lifemin=}
+      ;;
+    *)
+      print_usage_and_exit
+      ;;
+  esac
+done
+[ -n "$dir" ] || print_usage_and_exit
+case "$dir" in -|/*|./*|../*) :;; *) dir="./$dir";; esac
+
+
+######################################################################
+# Main Routine
+######################################################################
+
+case $subcmd in
+  create)
+    [ -n "$idtmpl"  ] || print_usage_and_exit
+    { mktempf1 "$dir/$idtmpl"; exit $?; }
+    ;;
+  validate)
+    [ -n "$lifemin" ] || print_usage_and_exit
+    [ -f "$dir/$id" ] || exit 1
+    find "$dir" -name "$id" -mmin +$lifemin | awk 'END{exit (NR>0) ? 1 : 0;}'
+    exit $?
+    ;;
+  reuse)
+    [ -n "$lifemin" ] || print_usage_and_exit
+    [ -f "$dir/$id" ] || exit 1
+    find "$dir" -name "$id" -mmin +$lifemin | awk 'END{exit (NR>0) ? 1 : 0;}'
+    [ $? -eq 0      ] || exit 2
+    touch "$dir/$id"
+    printf '%s\n' "$dir/$id"
+    exit 0
+    ;;
+  avail)
+    [ -n "$lifemin" ] || print_usage_and_exit
+    [ -n "$idtmpl"  ] || exit 1
+    [ -f "$dir/$id" ] || { mktempf1 "$dir/$idtmpl"; exit $?; }
+    find "$dir" -name "$id" -mmin +$lifemin | awk 'END{exit (NR>0) ? 1 : 0;}'
+    [ $? -eq 0      ] || { mktempf1 "$dir/$idtmpl"; exit $?; }
+    touch "$dir/$id"
+    printf '%s\n' "$dir/$id"
+    exit 0
+    ;;
+  renew)
+    [ -n "$lifemin" ] || print_usage_and_exit
+    [ -n "$idtmpl"  ] || print_usage_and_exit
+    [ -f "$dir/$id" ] || exit 1
+    find "$dir" -name "$id" -mmin +$lifemin | awk 'END{exit (NR>0) ? 1 : 0;}'
+    [ $? -eq 0      ] || exit 2
+    check=$(mktempf1 "$dir/$idtmpl")
+    [ $? -eq 0      ] || exit 3
+    mv -f "$dir/$id" "$check"
+    [ $? -eq 0      ] || exit 4
+    touch "$check"
+    printf '%s\n' "$check"
+    exit 0
+    ;;
+  remove)
+    if [ -n "$lifemin" ]; then
+      find "$dir" -name "$id" -mmin +$lifemin | xargs rm -f
+      exit $?
+    else
+      find "$dir" -name "$id"                 | xargs rm -f
+      exit $?
+    fi
+    ;;
+  *)
+    print_usage_and_exit
+    ;;
+esac
