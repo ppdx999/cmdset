@@ -30,7 +30,9 @@ export UNIX_STD=2003  # to make HP-UX conform to POSIX
 # === Help message ===================================================
 case "$1" in
   -h|--help)
-    echo "usage: unhide <file> ..."
+    echo "age - calculates the number of seconds that have passed since a specified file was last modified."
+    echo "USAGE: age <file>"
+    exit 0
     exit 1
   ;;
 esac
