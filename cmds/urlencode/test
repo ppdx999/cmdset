@@ -1,0 +1,47 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' urlencode > $tmp-urlencode.gawk
+chmod +x $tmp-urlencode.gawk
+
+sed -e '1s/awk/nawk/' urlencode > $tmp-urlencode.nawk
+chmod +x $tmp-urlencode.nawk
+
+sed -e '1s/awk/mawk/' urlencode > $tmp-urlencode.mawk
+chmod +x $tmp-urlencode.mawk
+
+cmds="./urlencode $tmp-urlencode.gawk $tmp-urlencode.nawk $tmp-urlencode.mawk"
+
+run_test() {
+  if [ "$(printf "$2" | $1)" != "$3" ]; then
+    echo "Failed" $2 $3
+    printf "$2" | $1
+    exit 1
+  fi
+}
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+printf "%12s: " ${cmd##*.}
+
+run_test $cmd "hello, world" "hello%2C+world"
+run_test $cmd 'newline
+secondline' 'newline
+secondline'
+run_test $cmd 'username=guest&password=guest' 'username%3Dguest%26password%3Dguest'
+run_test $cmd "あ" "%E3%81%82"
+run_test $cmd "こんにちは、世界" "%E3%81%93%E3%82%93%E3%81%AB%E3%81%A1%E3%81%AF%E3%80%81%E4%B8%96%E7%95%8C"
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0

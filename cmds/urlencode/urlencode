@@ -1,0 +1,55 @@
+#!/usr/bin/env -S LC_ALL=C awk -f ${_} --
+
+######################################################################
+# Init
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "urlencode - a small urlencode command"        > "/dev/stderr"
+    print ""                                             > "/dev/stderr"
+    print "Usage: urlencode [OPTINS] <file>"                      > "/dev/stderr"
+    print ""                                             > "/dev/stderr"
+    print "Options:"                                     > "/dev/stderr"
+    print "  -r, --raw  : Use %20 instead of +"          > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"  > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"  > "/dev/stderr"
+    exit 1
+  }
+
+######################################################################
+# Prepare variables
+  plus = "+";
+  if ( ARGV[2] == "-r" || ARGV[2] == "--raw" ) {
+    plus = "%20";
+    delete ARGV[2];
+  }
+  LF = sprintf("\n");
+  OFS = "";
+  ORS = "";
+  # fill c2p with 0-255 as hex
+  for(i= 0;i<256;i++){c2p[sprintf("%c",i)]=sprintf("%%%02X",i);}
+  # fill c2p with " " as plus(+) or %20
+  c2p[" "]=plus;
+  # fill c2p with 0-9 as is
+  for(i=48;i< 58;i++){c2p[sprintf("%c",i)]=sprintf("%c",i);    }
+  # fill c2p with A-Z as is
+  for(i=65;i< 91;i++){c2p[sprintf("%c",i)]=sprintf("%c",i);    }
+  # fill c2p with a-z as is
+  for(i=97;i<123;i++){c2p[sprintf("%c",i)]=sprintf("%c",i);    }
+  # fill c2p with other characters as is
+  c2p["-"]="-"; c2p["."]="."; c2p["_"]="_"; c2p["~"]="~";
+}
+
+######################################################################
+# Main Routine
+{
+  for (i = 1; i <= length($0); i++) {
+    print c2p[substr($0, i, 1)];
+  }
+  print LF;
+}
