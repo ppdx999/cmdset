@@ -1,0 +1,56 @@
+#!/usr/bin/env -S LC_ALL=C awk -f ${_} --
+
+######################################################################
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "form2kv - convert form data to key-value data" > "/dev/stderr"
+    print ""                                              > "/dev/stderr"
+    print "Usage: form2kv <file>"                         > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"   > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"   > "/dev/stderr"
+    exit 1
+  }
+
+  FS = "&"
+  # prepare variables for urldecode
+  for (i=0; i<256; i++) {
+    l  = sprintf("%c",i);
+    k1 = sprintf("%02x",i); # hex in lower case
+    k2 = substr(k1,1,1) toupper(substr(k1,2,1)); # hex in lower case and upper case
+    k3 = toupper(substr(k1,1,1)) substr(k1,2,1); # hex in upper case and lower case
+    k4 = toupper(k1); # hex in upper case
+    p2c[k1]=l;p2c[k2]=l;p2c[k3]=l;p2c[k4]=l;
+  }
+}
+
+######################################################################
+# Main Routine
+{
+  # remove \r
+  sub(/\r$/,"")
+
+  for (i=1; i<=NF; i++) {
+    n = split($i, a, "=")
+    if (n == 1) { # case when there is no value
+      print $i
+      continue
+    }
+    key = a[1]
+    value = a[2]
+
+    #--- start urldecode ----------
+    gsub(/\+/," ",value)
+    while (match(value, /%[0-9a-fA-F][0-9a-fA-F]/)) {
+      value = substr(value, 1, RSTART-1) p2c[substr(value, RSTART+1, 2)] substr(value, RSTART+3)
+    }
+    #--- end urldecode ----------
+
+    print key, value
+  }
+}
