@@ -1,0 +1,32 @@
+#!/usr/bin/env -S LC_ALL=C awk -f ${_} --
+
+######################################################################
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "readkv - read key-value pairs from a file"     > "/dev/stderr"
+    print ""                                              > "/dev/stderr"
+    print "Usage: readkv <key> <file>"                    > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"   > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"   > "/dev/stderr"
+    exit 1
+  }
+
+  key = ARGV[2]; delete ARGV[2]
+}
+
+######################################################################
+# Main Routine
+{
+  if( $1 == key) {
+    if( $2 == "" ) {
+      next
+    }
+    print $2
+  }
+}

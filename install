@@ -6,12 +6,14 @@ cd "$project_root_dir/cmds"
 
 cmds='
 age/age
+# assert-kv/assert-kv 
 cookie2kv/cookie2kv
 embed-f/embed-f
 embed-kv/embed-kv
 form2kv/form2kv
 html-escape/html-escape
 md2html/md2html
+readkv/readkv
 urldecode/urldecode
 urlencode/urlencode
 unhide/unhide

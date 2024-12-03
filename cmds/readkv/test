@@ -1,0 +1,55 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' readkv > $tmp-readkv.gawk
+chmod +x $tmp-readkv.gawk
+
+sed -e '1s/awk/nawk/' readkv > $tmp-readkv.nawk
+chmod +x $tmp-readkv.nawk
+
+sed -e '1s/awk/mawk/' readkv > $tmp-readkv.mawk
+chmod +x $tmp-readkv.mawk
+
+cmds="./readkv $tmp-readkv.gawk $tmp-readkv.nawk $tmp-readkv.mawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+echo $cmd > $tmp-cmd
+
+printf "%12s: " ${cmd##*.}
+
+cat <<EOF > $tmp-in
+USER_NAME John
+SENDER_NAME Jane
+DATE 2021-01-01
+EOF
+cat <<EOF > $tmp-expected
+John
+EOF
+$cmd 'USER_NAME' $tmp-in > $tmp-out
+diff -u $tmp-expected $tmp-out
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+cat <<EOF > $tmp-in
+USER_NAME
+SENDER_NAME Jane
+EOF
+cat <<EOF > $tmp-expected
+EOF
+$cmd 'USER_NAME' $tmp-in > $tmp-out
+diff -u $tmp-expected $tmp-out
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0
