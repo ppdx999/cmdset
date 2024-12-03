@@ -6,6 +6,7 @@ cd "$project_root_dir/cmds"
 
 cmds='
 age/age
+cookie2kv/cookie2kv
 embed-f/embed-f
 embed-kv/embed-kv
 form2kv/form2kv

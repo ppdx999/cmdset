@@ -1,0 +1,80 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' cookie2kv > $tmp-cookie2kv.gawk
+chmod +x $tmp-cookie2kv.gawk
+
+sed -e '1s/awk/nawk/' cookie2kv > $tmp-cookie2kv.nawk
+chmod +x $tmp-cookie2kv.nawk
+
+sed -e '1s/awk/mawk/' cookie2kv > $tmp-cookie2kv.mawk
+chmod +x $tmp-cookie2kv.mawk
+
+cmds="./cookie2kv $tmp-cookie2kv.gawk $tmp-cookie2kv.nawk $tmp-cookie2kv.mawk"
+
+run_test() {
+  cmd=$(cat $tmp-cmd)
+  echo "$1" | $cmd > $tmp-actual
+  diff -u $tmp-expected $tmp-actual
+  if [ $? -ne 0 ]; then
+    echo "NG"
+    exit 1
+  fi
+
+  # CRLF with BOM
+  echo "$1" | awk '{print '\xEF\xBB\xBF' $0}' | $cmd > $tmp-actual
+  diff -u $tmp-expected $tmp-actual
+  if [ $? -ne 0 ]; then
+    echo "NG"
+    exit 1
+  fi
+
+  # CR with BOM
+  echo "$1" | awk 'BEGIN {ORS = "\r"}  {print '\xEF\xBB\xBF' $0}' | $cmd > $tmp-actual
+  diff -u $tmp-expected $tmp-actual
+  if [ $? -ne 0 ]; then
+    echo "NG"
+    exit 1
+  fi
+}
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+echo $cmd > $tmp-cmd
+
+printf "%12s: " ${cmd##*.}
+
+cat <<EOF > $tmp-expected
+HOGE hoge
+JPN 日本
+EOF
+run_test "HOGE=hoge; JPN=%E6%97%A5%E6%9C%AC" 
+
+cat << FIN > $tmp-expected
+HOGE rm -Rf
+JPN 日本
+FIN
+run_test "HOGE=rm+-Rf;JPN=%E6%97%A5%E6%9C%AC"
+
+cat <<FIN > $tmp-expected
+place
+country japan
+FIN
+run_test "place;country=japan"
+
+
+# BOM Test
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0
