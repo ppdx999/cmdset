@@ -18,15 +18,7 @@ BEGIN {
   }
 
   FS = "&"
-  # prepare variables for urldecode
-  for (i=0; i<256; i++) {
-    l  = sprintf("%c",i);
-    k1 = sprintf("%02x",i); # hex in lower case
-    k2 = substr(k1,1,1) toupper(substr(k1,2,1)); # hex in lower case and upper case
-    k3 = toupper(substr(k1,1,1)) substr(k1,2,1); # hex in upper case and lower case
-    k4 = toupper(k1); # hex in upper case
-    p2c[k1]=l;p2c[k2]=l;p2c[k3]=l;p2c[k4]=l;
-  }
+  for (i=0; i<256; i++) { p2c[sprintf("%02X",i)] = sprintf("%c",i); }
 }
 
 ######################################################################
@@ -47,7 +39,7 @@ BEGIN {
     #--- start urldecode ----------
     gsub(/\+/," ",value)
     while (match(value, /%[0-9a-fA-F][0-9a-fA-F]/)) {
-      value = substr(value, 1, RSTART-1) p2c[substr(value, RSTART+1, 2)] substr(value, RSTART+3)
+      value = substr(value, 1, RSTART-1) p2c[toupper(substr(value, RSTART+1, 2))] substr(value, RSTART+3)
     }
     #--- end urldecode ----------
 
