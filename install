@@ -1,0 +1,25 @@
+#!/bin/sh
+
+install_dir="/usr/local/bin"
+project_root_dir="$(d=${0%/*}/; [ "_$d" = "_$0/" ] && d='./'; cd "$d"; pwd)"
+cd "$project_root_dir/cmds"
+
+cmds='
+age/age
+embed-f/embed-f
+embed-kv/embed-kv
+html-escape/html-escape
+md2html/md2html
+urldecode/urldecode
+urlencode/urlencode
+unhide/unhide
+validate-kv/validate-kv
+'
+
+for cmd in $cmds; do
+  if [ -z "$cmd" ]; then continue; fi
+  if [ "${cmd:0:1}" = '#' ]; then continue; fi
+
+  echo "Installing $cmd"
+  sudo cp -f "$cmd" "$install_dir"
+done
