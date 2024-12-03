@@ -40,6 +40,12 @@ esac
 # === Main routine ===================================================
 FILE_PATH="$1" # コマンドの第一引数としてファイルパスを受け取る
 
+# Check if the file exists
+if [ ! -e "$FILE_PATH" ]; then
+  echo "Error: File not found: $FILE_PATH" >&2
+  exit 1
+fi
+
 # 1. Try GNU stat (preferred)
 set +e # Disable error checking to try multiple methods
 if type stat >/dev/null 2>&1; then
