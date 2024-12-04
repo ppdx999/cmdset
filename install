@@ -13,8 +13,8 @@ argon2/pwverify
 cookie2kv/cookie2kv
 embed-f/embed-f
 embed-kv/embed-kv
+escape-html/escape-html
 form2kv/form2kv
-html-escape/html-escape
 md2html/md2html
 readkv/readkv
 urldecode/urldecode

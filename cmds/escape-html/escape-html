@@ -10,9 +10,9 @@ BEGIN {
        ARGV[2] == "-v" || ARGV[2] == "--version" ||
        ARGC == 1       \
   ){
-    print "html-escape - escape HTML special characters" > "/dev/stderr"
+    print "escape-html - escape HTML special characters" > "/dev/stderr"
     print ""                                             > "/dev/stderr"
-    print "Usage: html-escape <file>"                    > "/dev/stderr"
+    print "Usage: escape-html <file>"                    > "/dev/stderr"
     print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"  > "/dev/stderr"
     print "Homepage: https://github.com/ppdx999/cmdset"  > "/dev/stderr"
     exit 1

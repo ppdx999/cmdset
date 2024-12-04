@@ -4,16 +4,16 @@
 # Prepare Test
 tmp=/tmp/$(basename $0).$(date +%s).$$
 
-sed -e '1s/awk/gawk/' html-escape > $tmp-html-escape.gawk
-chmod +x $tmp-html-escape.gawk
+sed -e '1s/awk/gawk/' escape-html > $tmp-escape-html.gawk
+chmod +x $tmp-escape-html.gawk
 
-sed -e '1s/awk/nawk/' html-escape > $tmp-html-escape.nawk
-chmod +x $tmp-html-escape.nawk
+sed -e '1s/awk/nawk/' escape-html > $tmp-escape-html.nawk
+chmod +x $tmp-escape-html.nawk
 
-sed -e '1s/awk/mawk/' html-escape > $tmp-html-escape.mawk
-chmod +x $tmp-html-escape.mawk
+sed -e '1s/awk/mawk/' escape-html > $tmp-escape-html.mawk
+chmod +x $tmp-escape-html.mawk
 
-cmds="./html-escape $tmp-html-escape.gawk $tmp-html-escape.nawk $tmp-html-escape.mawk"
+cmds="./escape-html $tmp-escape-html.gawk $tmp-escape-html.nawk $tmp-escape-html.mawk"
 
 run_test() {
   if [ "$(echo $2 | $1)" != "$3" ]; then
