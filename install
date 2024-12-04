@@ -6,6 +6,9 @@ cd "$project_root_dir/cmds"
 
 cmds='
 age/age
+argon2/pw-needs-rehash
+argon2/pwhash
+argon2/pwverify
 # assert-kv/assert-kv 
 cookie2kv/cookie2kv
 embed-f/embed-f

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+thisd=$(dirname $(readlink -f $0))
+tmp=/tmp/$(basename $0).$$
+
+hash="$thisd/pwhash"
+verify="$thisd/pwverify"
+needs_rehash="$thisd/pw-needs-rehash"
+
+printf "Test: hash ... "
+$hash "test1234" > $tmp-hashed
+[ $? -ne 0 ] && { echo "NG"; exit 1; }
+echo "OK"
+
+printf "Test: verify valid password ... "
+$verify "$(cat $tmp-hashed)" "test1234"
+[ $? -ne 0 ] && { echo "NG"; exit 1; }
+echo "OK"
+
+printf "Test: verify invalid password ... "
+$verify "$(cat $tmp-hashed)" "test12345"
+[ $? -eq 0 ] && { echo "NG"; exit 1; }
+echo "OK"
+
+printf "Test: needs rehash not required ... "
+$needs_rehash "$(cat $tmp-hashed)"
+[ $? -ne 1 ] && { echo "NG"; exit 1; }
+echo "OK"
+
+printf "Test: needs rehash requried ... "
+$needs_rehash "$(cat $tmp-hashed | sed -e 's/t=3/t=1/')"
+[ $? -ne 0 ] && { echo "NG"; exit 1; }
+echo "OK"
