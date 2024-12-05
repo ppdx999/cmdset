@@ -41,6 +41,7 @@ BEGIN {
 
     #--- start urldecode ----------
     gsub(/\+/," ",value)
+    gsub(/%0[Dd]%0[Aa]/,"\\n",value)
     while (match(value, /%[0-9a-fA-F][0-9a-fA-F]/)) {
       value = substr(value, 1, RSTART-1) p2c[toupper(substr(value, RSTART+1, 2))] substr(value, RSTART+3)
     }

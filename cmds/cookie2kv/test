@@ -68,6 +68,12 @@ FIN
 run_test "place;country=japan"
 
 
+cat <<FIN > $tmp-expected
+place 東京\n大阪
+country ja pan
+FIN
+run_test "place=%E6%9D%B1%E4%BA%AC%0D%0A%E5%A4%A7%E9%98%AA; country=ja+pan"
+
 # BOM Test
 
 echo "OK"
