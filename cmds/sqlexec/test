@@ -1,0 +1,56 @@
+#!/bin/bash
+
+thisd=$(dirname $(readlink -f $0))
+tmp=/tmp/$(basename $0).$$.tmp
+
+cd $thisd
+
+db=$tmp-db
+sqlite3 $db <<EOF
+CREATE TABLE role (id INTEGER PRIMARY KEY, name TEXT, label TEXT, description TEXT);
+EOF
+
+export DATABASE_URL=sqlite3:///$db
+
+printf "Creating role... "
+
+cat > $tmp-sql <<EOF
+INSERT INTO role (name, label, description) VALUES (:name1, :label1, :description1), (:name2, :label2, :description2);
+EOF
+
+cat > $tmp-params <<EOF
+name1 sys_admin
+label1 System Administrator
+description1 System Administrator is the super user.\nIt can do anything.
+name2 user
+label2 User
+description2 User is the normal user.\nIt can do only limited things.
+EOF
+
+./sqlwrite $tmp-sql $tmp-params
+
+[ $? -ne 0 ] && { echo "Error: sqlwrite failed"; exit 1; }
+echo "OK"
+
+
+printf "Reading role... "
+
+cat > $tmp-sql <<EOF
+SELECT * FROM role;
+EOF
+
+./sqlread $tmp-sql > $tmp-out
+
+[ $? -ne 0 ] && { echo "Error: sqlread failed"; exit 1; }
+
+cat <<EOF > $tmp-expected
+1 sys\_admin System_Administrator System_Administrator_is_the_super_user.\nIt_can_do_anything.
+2 user User User_is_the_normal_user.\nIt_can_do_only_limited_things.
+EOF
+diff -u $tmp-out $tmp-expected
+[ $? -ne 0 ] && { echo "Error: sqlread output mismatch"; exit 1; }
+
+echo "OK"
+
+rm -f $tmp-*
+exit 0

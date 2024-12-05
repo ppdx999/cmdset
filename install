@@ -19,6 +19,8 @@ escape-html/escape-html
 form2kv/form2kv
 md2html/md2html
 readkv/readkv
+sqlexec/sqlread
+sqlexec/sqlwrite
 urldecode/urldecode
 urlencode/urlencode
 unhide/unhide
