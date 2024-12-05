@@ -36,8 +36,9 @@ BEGIN {
     key = a[1]
     value = a[2]
 
-    #--- start urldecode ----------
     gsub(/\+/," ",value)
+    gsub(/%0[Dd]%0[Aa]/,"\\n",value)
+    #--- start urldecode ----------
     while (match(value, /%[0-9a-fA-F][0-9a-fA-F]/)) {
       value = substr(value, 1, RSTART-1) p2c[toupper(substr(value, RSTART+1, 2))] substr(value, RSTART+3)
     }
