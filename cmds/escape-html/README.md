@@ -14,8 +14,8 @@
 
 ## Usage
 
-```sh
-echo "<p>Hello & 'World' \"!\"</p>" | escape-html
+```txt
+$ echo "<p>Hello & 'World' \"!\"</p>" | escape-html
 &lt;p&gt;Hello &amp; &#39;World&#39; &quot;!&quot;&lt;/p&gt;
 ```
 
