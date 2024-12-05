@@ -1,0 +1,93 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' escape > $tmp-escape.gawk
+chmod +x $tmp-escape.gawk
+
+sed -e '1s/awk/gawk/' unescape > $tmp-unescape.gawk
+chmod +x $tmp-unescape.gawk
+
+sed -e '1s/awk/nawk/' escape > $tmp-escape.nawk
+chmod +x $tmp-escape.nawk
+
+sed -e '1s/awk/nawk/' unescape > $tmp-unescape.nawk
+chmod +x $tmp-unescape.nawk
+
+cmds="./escape_./unescape $tmp-escape.gawk_$tmp-unescape.gawk $tmp-escape.nawk_$tmp-unescape.nawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+escape=$(echo $cmd | cut -d_ -f1)
+unescape=$(echo $cmd | cut -d_ -f2)
+
+printf "%12s: " ${cmd##*.}
+
+TEST="If no escape character, then no change ... "
+echo "abc" | $escape | grep -q "abc"
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+echo "abc" | $unescape | grep -q "abc"
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+echo "abc" | $escape | $unescape | grep -q "abc"
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+echo "abc" | $unescape | $escape | grep -q "abc"
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+TEST="Escape  ... "
+cat << EOF > $tmp-expect
+a\nb\tc_\_
+EOF
+echo -e "a\nb\tc _" | $escape > $tmp-actual
+diff -u $tmp-expect $tmp-actual
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+
+cat << EOF > $tmp-expect
+a
+b	c _
+EOF
+echo "a\nb\tc_\_" | $unescape > $tmp-actual
+diff -u $tmp-expect $tmp-actual
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+
+cat << EOF > $tmp-expect
+a
+b	c_ 
+EOF
+echo -e "a\nb\tc_ " | $escape | $unescape > $tmp-actual
+diff -u $tmp-expect $tmp-actual
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+cat << EOF > $tmp-expect
+a\nb\tc\__
+EOF
+echo "a\nb\tc\__" | $unescape | $escape > $tmp-actual
+diff -u $tmp-expect $tmp-actual
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+TEST="Only Space Escape is allowed ... "
+cat <<EOF > $tmp-expect
+a\nb_c
+EOF
+echo "a\nb c" | $escape > $tmp-actual
+diff -u $tmp-expect $tmp-actual
+[ $? -eq 0 ] || { echo $TEST "NG"; exit 1; }
+
+
+echo "OK"
+
+done
+
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0

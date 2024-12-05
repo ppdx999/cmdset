@@ -1,0 +1,33 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+######################################################################
+# Init
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "escape - escape special characters"           > "/dev/stderr"
+    print ""                                             > "/dev/stderr"
+    print "Usage: escape <file>"                         > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"  > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"  > "/dev/stderr"
+    exit 1
+  }
+}
+
+######################################################################
+# Main Routine
+BEGIN {s=""}
+NR==1 {s=$0;next;}
+{ s=s "\\n" $0 }
+END {
+  gsub(/\t/,"\\t",s)
+  gsub(/\r/,"\\r",s)
+  gsub(/_/ ,"\\_",s)
+  gsub(/ / ,"_",s)
+  print s
+}
