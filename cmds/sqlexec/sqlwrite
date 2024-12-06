@@ -63,16 +63,15 @@ if __name__ == '__main__':
     engine = database_url.split(':')[0]
     if engine == 'sqlite3':
         conn = sqlite3.connect(database_url.split(':///')[1])
+        cursor = conn.cursor()
+        if params:
+            cursor.execute(sql, params)
+        else:
+            cursor.execute(sql)
+        conn.commit()
+        cursor.close()
+        conn.close()
     else:
         msg = "Error: unsupported database engine %s" % engine
         print(msg, file=sys.stderr)
         sys.exit(1)
-
-    cursor = conn.cursor()
-    if params:
-        cursor.execute(sql, params)
-    else:
-        cursor.execute(sql)
-    conn.commit()
-    cursor.close()
-    conn.close()
