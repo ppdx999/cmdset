@@ -64,6 +64,7 @@ if __name__ == '__main__':
     if engine == 'sqlite3':
         conn = sqlite3.connect(database_url.split(':///')[1])
         cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON")
         if params:
             cursor.execute(sql, params)
         else:
