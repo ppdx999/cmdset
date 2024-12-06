@@ -1,0 +1,36 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+######################################################################
+# Init
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "Usage: embed <template-file> <data-file>"                 > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"               > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"               > "/dev/stderr"
+    exit 1
+  }
+  f = ARGV[2] ; delete ARGV[2]
+  tmpl = ""
+  while(getline l < f) { tmpl = tmpl l "\n" }
+  tmpl = sub(/\n$/, "", tmpl)
+}
+
+######################################################################
+# Main Routine
+{
+  l = tmpl
+
+  # Embed data into %1, %2, %3, ...
+  for (i = 1; i <= NF; i++) { gsub("%" i, $i, l) }
+
+  # Remove unused placeholders
+  gsub(/%[0-9]+/, "", l)
+
+  print l
+}
