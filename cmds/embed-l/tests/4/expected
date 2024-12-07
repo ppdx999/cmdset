@@ -1,0 +1,5 @@
+<form>
+  <input type="text" name="username" value="fujis">
+  <input type="password" name="password" value="test1234">
+  <button type="submit">Submit</button>
+</form>

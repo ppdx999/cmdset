@@ -1,0 +1,49 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
+tmp=/tmp/$(basename $0).$(date +%s).$$
+cmd="embed-l"
+
+sed -e '1s/awk/gawk/' $cmd > $tmp-$cmd.gawk
+chmod +x $tmp-$cmd.gawk
+
+sed -e '1s/awk/nawk/' $cmd > $tmp-$cmd.nawk
+chmod +x $tmp-$cmd.nawk
+
+sed -e '1s/awk/mawk/' $cmd > $tmp-$cmd.mawk
+chmod +x $tmp-$cmd.mawk
+
+cmds="./$cmd $tmp-$cmd.gawk $tmp-$cmd.nawk $tmp-$cmd.mawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+  printf "%6s: " ${cmd##*.}
+
+  ls tests | while read c; do
+    template=tests/$c/template
+    data=tests/$c/data
+    expected=tests/$c/expected
+    label=tests/$c/label
+
+    if [ -f $label ]; then
+      $cmd $(cat $label) $template $data > $tmp-out
+    else
+      $cmd $template $data > $tmp-out
+    fi
+    diff -u $expected $tmp-out
+    if [ $? -ne 0 ]; then echo $c "... NG"; exit 1; fi
+  done
+
+  echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0

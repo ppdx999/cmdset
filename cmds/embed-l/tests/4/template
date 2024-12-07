@@ -1,0 +1,6 @@
+<form>
+  <! ___LABEL___ >
+  <input type="%1" name="%2" value="%3">
+  <! ___LABEL___ >
+  <button type="submit">Submit</button>
+</form>
