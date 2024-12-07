@@ -75,6 +75,23 @@ HEADER
 3rd=g 4th=h
 ```
 
+If `-u` or `--unescape` option is specified, the data is unescaped when embedded.
+
+```terminal
+$ cat data
+1\t2_3 b
+c d
+
+$ cat template
+1st=%1 2nd=%2
+
+$ embed-l -u ___LABEL___ template data
+1st=1	2 3 2nd=b
+1st=c 2nd=d
+```
+
+Real-world example:
+
 ```terminal
 $ cat data
 text     username fujis
