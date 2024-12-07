@@ -12,17 +12,21 @@ BEGIN {
        ARGV[2] == "-v" || ARGV[2] == "--version" ||
        ARGC < 4        \
   ){
-    print "Usage: embed-l [<label>] <template-file <data-file>"       > "/dev/stderr"
-    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"               > "/dev/stderr"
-    print "Homepage: https://github.com/ppdx999/cmdset"               > "/dev/stderr"
+    print "Usage: embed-l [<option>] [<label>] <template-file <data-file>" > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"                    > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"                    > "/dev/stderr"
     exit 1
   }
-  if (ARGC == 4) { # In case of no label provided
+  i = 2
+  if (ARGV[i] == "-u" || ARGV[i] == "--unescape") {
+    unescape = 1; delete ARGV[i++]
+  }
+  if(ARGC-i == 2) { # In case of no label provided
     label = "___LABEL___"
-    tmplate_file = ARGV[2]; delete ARGV[2]
+    tmplate_file = ARGV[i]; delete ARGV[i]
   } else { # In case of label
-    label = ARGV[2]; delete ARGV[2]
-    tmplate_file = ARGV[3]; delete ARGV[3]
+    label = ARGV[i]; delete ARGV[i]
+    tmplate_file = ARGV[++i]; delete ARGV[i]
   }
 
   ######################################################################
@@ -64,6 +68,15 @@ BEGIN {
 
   # Remove unused placeholders
   gsub(/%[0-9]+/, "", l)
+
+  if(unescape) {
+    gsub(/\\n/,"\n",l)
+    gsub(/\\t/,"\t",l)
+    gsub(/\\r/,"\r",l)
+    gsub(/\\_/,"\021",l)
+    gsub(/_/," ",l)
+    gsub(/\021/,"_",l)
+  }
 
   print l
 }

@@ -29,12 +29,13 @@ for cmd in $cmds; do
     data=tests/$c/data
     expected=tests/$c/expected
     label=tests/$c/label
+    extra_option=tests/$c/extra-option
 
-    if [ -f $label ]; then
-      $cmd $(cat $label) $template $data > $tmp-out
-    else
-      $cmd $template $data > $tmp-out
-    fi
+    run=$cmd
+    [ -f $extra_option ] && run="$run $(cat $extra_option)"
+    [ -f $label ] && run="$run $(cat $label)"
+    run="$run $template $data"
+    $run > $tmp-out
     diff -u $expected $tmp-out
     if [ $? -ne 0 ]; then echo $c "... NG"; exit 1; fi
   done
