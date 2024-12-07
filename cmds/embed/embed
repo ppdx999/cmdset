@@ -18,7 +18,7 @@ BEGIN {
   f = ARGV[2] ; delete ARGV[2]
   tmpl = ""
   while(getline l < f) { tmpl = tmpl l "\n" }
-  tmpl = sub(/\n$/, "", tmpl)
+  sub(/\n$/, "", tmpl)
 }
 
 ######################################################################
