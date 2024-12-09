@@ -10,9 +10,9 @@ BEGIN {
        ARGV[2] == "-v" || ARGV[2] == "--version" ||
        ARGC == 1       \
   ){
-    print "Usage: embed <template-file> <data-file>"                 > "/dev/stderr"
-    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"               > "/dev/stderr"
-    print "Homepage: https://github.com/ppdx999/cmdset"               > "/dev/stderr"
+    print "Usage: embed <template-file> <data-file>"    > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis" > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset" > "/dev/stderr"
     exit 1
   }
   f = ARGV[2] ; delete ARGV[2]
