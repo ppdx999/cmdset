@@ -83,11 +83,17 @@ $ cat data
 c d
 
 $ cat template
+HEADER
+___LABEL___
 1st=%1 2nd=%2
+___LABEL___
+FOOTER
 
-$ embed-l -u ___LABEL___ template data
+$ embed-l -u template data
+HEADER
 1st=1	2 3 2nd=b
 1st=c 2nd=d
+FOOTER
 ```
 
 Real-world example:
