@@ -4,25 +4,45 @@
 import sys
 from argon2 import PasswordHasher
 
-_usage = "pwverify <hashed_password> <raw_password>"
+_usage = "pwverify <file>"
+_description = """
+<file> contains two lines:
+line 1: hashed password
+line 2: raw password
+"""
 _version = "Sat Nov 30 16:32:58 JST 2024 fujis"
 _homepage = "https://github.com/ppdx999/cmdset"
 
+
+def usage():
+    print("Usage: %s" % _usage, file=sys.stderr)
+    print(_description, file=sys.stderr)
+    print("Version: %s" % _version, file=sys.stderr)
+    print("Homepage: %s" % _homepage, file=sys.stderr)
+
+
+def open_file(f):
+    if f == '-':
+        f = "/dev/fd/0"
+    return open(f, 'r')
+
+
+def take(array, i, default=None):
+    return array[i] if len(array) > i else default
+
+
 if __name__ == '__main__':
-    if sys.argv[1] in ['-h', '--help', '-v', '--version']:
-        print("pwverify - verify password", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("Usage: %s" % _usage, file=sys.stderr)
-        print("Version: %s" % _version, file=sys.stderr)
-        print("Homepage: %s" % _homepage, file=sys.stderr)
+    a1 = take(sys.argv, 1, '-')
+    if a1 in ['-h', '--help', '-v', '--version']:
+        usage()
         sys.exit(1)
 
-    if len(sys.argv) != 3:
-        print("Usage: %s" % _usage, file=sys.stderr)
-        sys.exit(1)
-
+    f = open_file(a1)
     try:
-        PasswordHasher().verify(sys.argv[1], sys.argv[2])
+        PasswordHasher().verify(
+            f.readline().strip(),  # hashed password
+            f.readline().strip()   # raw password
+        )
     except Exception:
         sys.exit(1)
 

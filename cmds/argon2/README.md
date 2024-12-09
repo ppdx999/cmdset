@@ -16,8 +16,9 @@ pwhash uses the Argon2id algorithm with the following parameters:
 ## Usage
 
 ```sh
-$ pwhash <raw_password>
-$ pwverify <hashed_password> <raw_password>
+$ pwhash <file>
+$ pwverify <file>
+$ pw-needs-rehash <file>
 ```
 
 ## License

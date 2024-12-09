@@ -8,26 +8,31 @@ verify="$thisd/pwverify"
 needs_rehash="$thisd/pw-needs-rehash"
 
 printf "Test: hash ... "
-$hash "test1234" > $tmp-hashed
+echo "tets1234" | $hash > $tmp-hashed
 [ $? -ne 0 ] && { echo "NG"; exit 1; }
 echo "OK"
 
 printf "Test: verify valid password ... "
-$verify "$(cat $tmp-hashed)" "test1234"
+
+cp $tmp-hashed $tmp-verify
+echo "tets1234" >> $tmp-verify
+$verify $tmp-verify
 [ $? -ne 0 ] && { echo "NG"; exit 1; }
 echo "OK"
 
 printf "Test: verify invalid password ... "
-$verify "$(cat $tmp-hashed)" "test12345"
+cp $tmp-hashed $tmp-verify
+echo "test12345" >> $tmp-verify
+$verify $tmp-verify
 [ $? -eq 0 ] && { echo "NG"; exit 1; }
 echo "OK"
 
 printf "Test: needs rehash not required ... "
-$needs_rehash "$(cat $tmp-hashed)"
+$needs_rehash $tmp-hashed
 [ $? -ne 1 ] && { echo "NG"; exit 1; }
 echo "OK"
 
 printf "Test: needs rehash requried ... "
-$needs_rehash "$(cat $tmp-hashed | sed -e 's/t=3/t=1/')"
+cat $tmp-hashed | sed -e 's/t=3/t=1/' | $needs_rehash
 [ $? -ne 0 ] && { echo "NG"; exit 1; }
 echo "OK"
