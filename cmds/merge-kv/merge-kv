@@ -1,0 +1,35 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+BEGIN {
+  ######################################################################
+  # Parse Options
+
+  # Remove the script path
+  delete ARGV[1]
+
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC != 4       \
+  ){
+    print "Usage:    merge-kv <from-kv-file> <to-kv-file>" > "/dev/stderr"
+    print "Version:  Sat Nov 30 16:32:58 JST 2024 fujis"   > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"    > "/dev/stderr"
+    exit 1
+  }
+}
+
+######################################################################
+# Main Routine
+NF > 0 {
+  k = $1;
+  sub(k, "", $0);
+  sub(/^ */, "", $0);
+  kv[k] = $0;
+}
+
+END {
+  for (k in kv) {
+    print k, kv[k];
+  }
+}

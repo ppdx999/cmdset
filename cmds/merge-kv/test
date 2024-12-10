@@ -1,0 +1,45 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
+tmp=/tmp/$(basename $0).$(date +%s).$$
+cmd="merge-kv"
+
+sed -e '1s/awk/gawk/' $cmd > $tmp-$cmd.gawk
+chmod +x $tmp-$cmd.gawk
+
+sed -e '1s/awk/nawk/' $cmd > $tmp-$cmd.nawk
+chmod +x $tmp-$cmd.nawk
+
+sed -e '1s/awk/mawk/' $cmd > $tmp-$cmd.mawk
+chmod +x $tmp-$cmd.mawk
+
+cmds="./$cmd $tmp-$cmd.gawk $tmp-$cmd.nawk $tmp-$cmd.mawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+  printf "%6s: " ${cmd##*.}
+
+  ls tests | while read c; do
+    from_kv=tests/$c/from-kv
+    to_kv=tests/$c/to-kv
+    expected=tests/$c/expected
+    cat $expected | sort > $tmp-expected
+
+    $cmd $from_kv $to_kv | sort > $tmp-out
+    diff -u $tmp-expected $tmp-out
+    if [ $? -ne 0 ]; then echo $c "... NG"; exit 1; fi
+  done
+
+  echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0
