@@ -1,0 +1,36 @@
+#!/usr/bin/env -S awk -f ${_} --
+
+BEGIN {
+  ######################################################################
+  # Parse Options
+
+  # Remove the script path
+  delete ARGV[1]
+
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC < 2       \
+  ){
+    print "Usage:    self <f1> <f2> ... <file>"            > "/dev/stderr"
+    print "Version:  Sat Nov 30 16:32:58 JST 2024 fujis"   > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"    > "/dev/stderr"
+    exit 1
+  }
+
+  for (i = 2; i < ARGC; i++) {
+    fields[i] = ARGV[i];
+    delete ARGV[i];
+  }
+}
+
+######################################################################
+# Main Routine
+{
+  l = ""
+  for(i = 2; i < ARGC; i++) {
+    l = l " " $fields[i];
+  }
+  sub(/^ */, "", l);
+  print l
+}

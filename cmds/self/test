@@ -1,0 +1,53 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
+tmp=/tmp/$(basename $0).$(date +%s).$$
+cmd="self"
+
+sed -e '1s/awk/gawk/' $cmd > $tmp-$cmd.gawk
+chmod +x $tmp-$cmd.gawk
+
+sed -e '1s/awk/nawk/' $cmd > $tmp-$cmd.nawk
+chmod +x $tmp-$cmd.nawk
+
+sed -e '1s/awk/mawk/' $cmd > $tmp-$cmd.mawk
+chmod +x $tmp-$cmd.mawk
+
+cmds="./$cmd $tmp-$cmd.gawk $tmp-$cmd.nawk $tmp-$cmd.mawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+printf "%6s: " ${cmd##*.}
+
+cat << EOF > $tmp-in.txt
+0000000 浜地______ 50 F 91 59 20 76 54
+0000001 鈴田______ 50 F 46 39 8  5  21
+0000003 杉山______ 26 F 30 50 71 36 30
+0000004 白土______ 40 M 58 71 20 10 6
+0000005 崎村______ 50 F 82 79 16 21 80
+EOF
+
+$cmd 4 2 < $tmp-in.txt > $tmp-out.txt
+cat << EOF > $tmp-ans.txt
+F 浜地______
+F 鈴田______
+F 杉山______
+M 白土______
+F 崎村______
+EOF
+diff -u $tmp-ans.txt $tmp-out.txt
+[ $? -ne 0 ] && echo case 1 ... ng && exit 1
+
+echo ok
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0

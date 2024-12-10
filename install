@@ -22,6 +22,7 @@ form2kv/form2kv
 md2html/md2html
 merge-kv/merge-kv
 readkv/readkv
+self/self
 sqlexec/sqlread
 sqlexec/sqlwrite
 urldecode/urldecode
