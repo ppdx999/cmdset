@@ -11,6 +11,8 @@ _docs = "https://github.com/ppdx999/cmdset"
 
 
 def read_file(file):
+    if file == '-':
+        file = "/dev/fd/0"
     with open(file) as f:
         return f.read()
 
@@ -25,6 +27,10 @@ def kv2dict(kv):
     return rdict
 
 
+def take(array, i, default=None):
+    return array[i] if len(array) > i else default
+
+
 def escape_chars(s):
     s = s.replace('\n', '\\n')
     s = s.replace('\t', '\\t')
@@ -35,7 +41,9 @@ def escape_chars(s):
 
 
 if __name__ == '__main__':
-    if sys.argv[1] in ['-h', '--help', '-v', '--version']:
+    a1 = take(sys.argv, 1, '-')
+    a2 = take(sys.argv, 2, None)
+    if a1 in ['-h', '--help', '-v', '--version']:
         print("sqlread - print sql query result", file=sys.stderr)
         print("", file=sys.stderr)
         print("Usage: %s" % _usage, file=sys.stderr)
@@ -43,26 +51,8 @@ if __name__ == '__main__':
         print("Docs: %s" % _docs, file=sys.stderr)
         sys.exit(1)
 
-    if len(sys.argv) not in [2, 3]:
-        print("Usage: %s" % _usage, file=sys.stderr)
-        sys.exit(1)
-
-    sql_file = sys.argv[1]
-    param_file = sys.argv[2] if len(sys.argv) == 3 else None
-
-    if not os.path.exists(sql_file):
-        print("Error: %s not found" % sql_file, file=sys.stderr)
-        sys.exit(1)
-
-    if param_file and not os.path.exists(param_file):
-        print("Error: %s not found" % param_file, file=sys.stderr)
-        sys.exit(1)
-
-    sql = read_file(sql_file)
-    if param_file:
-        params = kv2dict(read_file(param_file))
-    else:
-        params = None
+    sql = read_file(a1)
+    params = kv2dict(read_file(a2)) if a2 else None
 
     database_url = os.environ.get('DATABASE_URL')
     if not database_url:
@@ -72,23 +62,22 @@ if __name__ == '__main__':
     engine = database_url.split(':')[0]
     if engine == 'sqlite3':
         conn = sqlite3.connect(database_url.split(':///')[1])
+        cursor = conn.cursor()
+        if params:
+            cursor.execute(sql, params)
+        else:
+            cursor.execute(sql)
+
+        for row in cursor.fetchall():
+            for i, col in enumerate(row):
+                if i > 0:
+                    print(" ", end="")
+                print(escape_chars(str(col)), end="")
+            print("")
+
+        cursor.close()
+        conn.close()
     else:
         msg = "Error: unsupported database engine %s" % engine
         print(msg, file=sys.stderr)
         sys.exit(1)
-
-    cursor = conn.cursor()
-    if params:
-        cursor.execute(sql, params)
-    else:
-        cursor.execute(sql)
-
-    for row in cursor.fetchall():
-        for i, col in enumerate(row):
-            if i > 0:
-                print(" ", end="")
-            print(escape_chars(str(col)), end="")
-        print("")
-
-    cursor.close()
-    conn.close()
