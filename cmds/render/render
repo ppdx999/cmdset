@@ -1,0 +1,71 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+usage() {
+  echo "Usage:    render <template-file> <data-file>" > "/dev/stderr"
+  echo "Version:  Sat Nov 30 16:32:58 JST 2024 fujis" > "/dev/stderr"
+  echo "Homepage: https://github.com/ppdx999/cmdset"  > "/dev/stderr"
+  exit 1
+}
+case $# in 2) ;; *) usage ;; esac
+case $1 in -h|--help|-v|--version) usage ;; esac
+
+template=$1
+data=$2
+
+awk '{
+  gsub(/{{ */, "{{");
+  gsub(/ *}}/, "}}");
+  gsub(/{{/, "{{\n");
+  gsub(/}}/, "\n}}");
+  print;
+}' $template        |
+awk '
+function printr(s) {
+  ORS = "";
+  print s;
+  ORS = "\n";
+}
+
+BEGIN {
+  in_p = 0;
+}
+
+# Read data file
+NR == FNR {
+  k = $1;
+  sub(k, "", $0);
+  sub(/^ */, "", $0);
+  kv[k] = $0;
+  next
+}
+
+!in_p && /.*{{$/ {
+  in_p = 1;
+  gsub(/{{$/, "");
+  printr($0);
+  next;
+}
+
+# skip empty lines
+in_p && /^ *$/ {
+  next;
+}
+
+in_p && /^}}.*$/ {
+  in_p = 0;
+  gsub(/^}}/, "");
+  print;
+  next;
+}
+
+in_p {
+  printr(kv[$0]);
+  next;
+}
+
+{
+  print;
+}
+' $data -
