@@ -1,0 +1,47 @@
+#!/usr/bin/env -S LC_ALL=C awk -f ${_} --
+
+######################################################################
+BEGIN {
+  # Remove the script path
+  delete ARGV[1]
+  # Parse Options
+  if ( ARGV[2] == "-h" || ARGV[2] == "--help"    ||
+       ARGV[2] == "-v" || ARGV[2] == "--version" ||
+       ARGC == 1       \
+  ){
+    print "Usage: query2kv <file>"                         > "/dev/stderr"
+    print "Version: Sat Nov 30 16:32:58 JST 2024 fujis"   > "/dev/stderr"
+    print "Homepage: https://github.com/ppdx999/cmdset"   > "/dev/stderr"
+    exit 1
+  }
+
+  FS = "&"
+  for (i=0; i<256; i++) { p2c[sprintf("%02X",i)] = sprintf("%c",i); }
+}
+
+######################################################################
+# Main Routine
+{
+  # remove \r
+  sub(/\r$/,"")
+
+  for (i=1; i<=NF; i++) {
+    n = split($i, a, "=")
+    if (n == 1) { # case when there is no value
+      print $i
+      continue
+    }
+    key = a[1]
+    value = a[2]
+
+    gsub(/\+/," ",value)
+    gsub(/%0[Dd]%0[Aa]/,"\\n",value)
+    #--- start urldecode ----------
+    while (match(value, /%[0-9a-fA-F][0-9a-fA-F]/)) {
+      value = substr(value, 1, RSTART-1) p2c[toupper(substr(value, RSTART+1, 2))] substr(value, RSTART+3)
+    }
+    #--- end urldecode ----------
+
+    print key, value
+  }
+}

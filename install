@@ -21,6 +21,7 @@ escape-html/escape-html
 form2kv/form2kv
 md2html/md2html
 merge-kv/merge-kv
+query2kv/query2kv
 readkv/readkv
 self/self
 sqlexec/sqlread
