@@ -1,0 +1,5 @@
+user[0].name user1
+user[0].age 21
+user[1].name user2
+user[1].age 23
+user[1].address[0].zipcode 000-0000

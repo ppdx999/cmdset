@@ -1,0 +1,21 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
+tmp=/tmp/$(basename $0).$(date +%s).$$
+cmd="./kv2json"
+
+ls tests |
+while read c; do
+  in=tests/$c/in
+  out=tests/$c/out
+  jq -c . < $out > $tmp-out
+
+  $cmd $in | jq -c . > $tmp-actual
+  diff -u $tmp-out $tmp-actual
+  if [ $? -ne 0 ]; then echo $c "... NG"; exit 1; fi
+done
+
+echo "OK"

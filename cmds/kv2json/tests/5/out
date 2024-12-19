@@ -1,0 +1,16 @@
+{
+  "user": [
+    {
+      "name": "user1",
+      "age": 21
+    },
+    {
+      "name": "user2",
+      "age": 23,
+      "address": [
+        { "zipcode": "000-0000" }
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+import sys
+import json
+
+_usage = "kv2json [<file.kv>]"
+_version = "Sat Nov 30 16:32:58 JST 2024 fujis"
+_homepage = "https://github.com/ppdx999/cmdset"
+
+
+def usage():
+    print("Usage: %s" % _usage, file=sys.stderr)
+    print("Version: %s" % _version, file=sys.stderr)
+    print("Homepage: %s" % _homepage, file=sys.stderr)
+
+
+def open_file(f):
+    if f == '-':
+        f = "/dev/fd/0"
+    return open(f, 'r')
+
+
+def take(array, i, default=None):
+    return array[i] if len(array) > i else default
+
+
+def is_array(k):
+    return k.endswith(']') and '[' in k
+
+
+def parsearrk(k):
+    k, i = k.split('[')
+    i = i[:-1]
+    if i == '':
+        return k, None
+    else:
+        return k, int(i)
+
+
+def parsev(v):
+    try:
+        v = v.strip()
+        v = float(v)
+        if v.is_integer():
+            v = int(v)
+    except Exception:
+        pass
+    return v
+
+
+def parsel(line):
+    kv = line.split(maxsplit=1)
+    ks = take(kv, 0).strip().split('.')
+    v = parsev(take(kv, 1, None))
+    return ks, v
+
+
+if __name__ == '__main__':
+    a1 = take(sys.argv, 1, '-')
+    if a1 in ['-h', '--help', '--version']:
+        usage()
+        sys.exit(1)
+
+    f = open_file(a1)
+    d = {}
+    for line in f:
+        # ----------------------------------------
+        # ks: keys split by '.'
+        # v : value
+        # p : current dict pointer
+        # ----------------------------------------
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        ks, v = parsel(line)
+        p = d
+        for i, k in enumerate(ks):
+            # ----------------------------------------
+            # Case of last key
+            if i == len(ks) - 1:
+                # ------------------------------------
+                # Case of array
+                if is_array(k):
+                    _k, _i = parsearrk(k)
+                    if _k not in p:
+                        p[_k] = []
+                    # --------------------------------
+                    # append value until reach to index
+                    while len(p[_k]) < _i:
+                        p[_k].append(None)
+                    p[_k].append(v)
+                # ------------------------------------
+                # Case of non-array
+                else:
+                    p[k] = v
+            # ----------------------------------------
+            # Case of not last key
+            else:
+                # ------------------------------------
+                # Case of array
+                if is_array(k):
+                    _k, _i = parsearrk(k)
+                    if _k not in p:
+                        p[_k] = []
+                    # --------------------------------
+                    # append dict until reach to index
+                    while len(p[_k]) <= _i:
+                        # If key is array and not last key
+                        # then dict comes next
+                        p[_k].append({})
+                    p = p[_k][_i]
+                # ------------------------------------
+                # Case of non-array
+                else:
+                    if k not in p:
+                        p[k] = {}
+                    p = p[k]
+
+    print(json.dumps(d, ensure_ascii=False))
+    sys.exit(0)

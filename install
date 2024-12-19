@@ -19,6 +19,7 @@ escape/escape
 escape/unescape
 escape-html/escape-html
 form2kv/form2kv
+kv2json/kv2json
 md2html/md2html
 merge-kv/merge-kv
 query2kv/query2kv
