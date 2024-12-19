@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>This Is TITLE</title>
+  </head>
+  <body>
+    <header>
+      <h1>title</h1>
+      <span>dennis ritchie</span>
+    </header>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>age</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>user1</td>
+            <td>21</td>
+          </tr>
+          <tr>
+            <td>user2</td>
+            <td>23</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{title}}</title>
+  </head>
+  <body>
+    <header>
+      <h1>title</h1>
+      {{#logged_in}}
+      <span>{{username}}</span>
+      {{/logged_in}}
+    </header>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>age</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#users}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{age}}</td>
+          </tr>
+          {{/users}}
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>

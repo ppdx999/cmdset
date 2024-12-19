@@ -5,40 +5,18 @@
 thisd=$(dirname $(readlink -f $0))
 cd $thisd
 tmp=/tmp/$(basename $0).$(date +%s).$$
-cmd="render"
+cmd="./render"
 
-sed -e 's/awk/gawk/' $cmd > $tmp-$cmd.gawk
-chmod +x $tmp-$cmd.gawk
+ls tests |
+while read c; do
+  printf "%-25s" $c
 
-sed -e 's/awk/nawk/' $cmd > $tmp-$cmd.nawk
-chmod +x $tmp-$cmd.nawk
+  template=tests/$c/template
+  data=tests/$c/data
+  expected=tests/$c/expected
 
-sed -e 's/awk/mawk/' $cmd > $tmp-$cmd.mawk
-chmod +x $tmp-$cmd.mawk
-
-cmds="./$cmd $tmp-$cmd.gawk $tmp-$cmd.nawk $tmp-$cmd.mawk"
-
-##########################################################################
-# Test Main Routine
-for cmd in $cmds; do
-
-  printf "%6s: " ${cmd##*.}
-
-  ls tests | while read c; do
-    template=tests/$c/template
-    data=tests/$c/data
-    expected=tests/$c/expected
-
-    $cmd $template $data > $tmp-actual
-    diff -u $expected $tmp-actual
-    if [ $? -ne 0 ]; then echo $c "... NG"; exit 1; fi
-  done
-
-  echo "OK"
-
+  kv2json $data | $cmd - $template > $tmp-actual
+  diff -u $expected $tmp-actual
+  if [ $? -ne 0 ]; then echo "... NG"; exit 1; fi
+  echo "... OK"
 done
-
-##########################################################################
-# Clean up and Exit
-rm -f $tmp-*
-exit 0
