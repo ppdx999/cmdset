@@ -41,6 +41,10 @@ def parsearrk(k):
 def parsev(v):
     try:
         v = v.strip()
+        if v == 'true':
+            return True
+        elif v == 'false':
+            return False
         v = float(v)
         if v.is_integer():
             v = int(v)
