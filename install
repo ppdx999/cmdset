@@ -17,7 +17,7 @@ embed-kv/embed-kv
 embed-l/embed-l
 escape/escape
 escape/unescape
-escape-html/escape-html
+escape-html/bin/escape-html
 form2kv/form2kv
 kv2json/kv2json
 md2html/md2html

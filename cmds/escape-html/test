@@ -2,45 +2,22 @@
 
 ##########################################################################
 # Prepare Test
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
 tmp=/tmp/$(basename $0).$(date +%s).$$
+cmd="./bin/escape-html"
 
-sed -e '1s/awk/gawk/' escape-html > $tmp-escape-html.gawk
-chmod +x $tmp-escape-html.gawk
+./build
 
-sed -e '1s/awk/nawk/' escape-html > $tmp-escape-html.nawk
-chmod +x $tmp-escape-html.nawk
+ls tests |
+while read c; do
+  printf "%-25s" $c
 
-sed -e '1s/awk/mawk/' escape-html > $tmp-escape-html.mawk
-chmod +x $tmp-escape-html.mawk
+  in=tests/$c/in
+  out=tests/$c/out
 
-cmds="./escape-html $tmp-escape-html.gawk $tmp-escape-html.nawk $tmp-escape-html.mawk"
-
-run_test() {
-  if [ "$(echo $2 | $1)" != "$3" ]; then
-    echo "Failed" $2 $3
-    exit 1
-  fi
-}
-
-##########################################################################
-# Test Main Routine
-for cmd in $cmds; do
-
-printf "%12s: " ${cmd##*.}
-
-run_test $cmd "<p>こんにちは & '世界' \"！\"</p>" "&lt;p&gt;こんにちは &amp; &#39;世界&#39; &quot;！&quot;&lt;/p&gt;"
-run_test $cmd "Hello < & > World" "Hello &lt; &amp; &gt; World"
-run_test $cmd "<script>alert('XSS');</script>" "&lt;script&gt;alert(&#39;XSS&#39;);&lt;/script&gt;"
-run_test $cmd "No special characters" "No special characters"
-run_test $cmd "5 > 3 && 4 < 10" "5 &gt; 3 &amp;&amp; 4 &lt; 10"
-run_test $cmd "'Single quotes' and \"double quotes\"" "&#39;Single quotes&#39; and &quot;double quotes&quot;"
-
-
-echo "OK"
-
+  $cmd < $in > $tmp-actual
+  diff -u $out $tmp-actual
+  if [ $? -ne 0 ]; then echo "... NG"; exit 1; fi
+  echo "... OK"
 done
-
-##########################################################################
-# Clean up and Exit
-rm -f $tmp-*
-exit 0

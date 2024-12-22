@@ -1,0 +1,8 @@
+#!/bin/bash
+
+thids=$(dirname $(readlink -f $0))
+cd $thids
+rm bin/escape-html
+cabal build
+find dist-newstyle/build -type f -name 'escape-html' |
+xargs -I {} cp {} bin/
