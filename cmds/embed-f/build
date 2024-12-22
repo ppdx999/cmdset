@@ -1,0 +1,9 @@
+#!/bin/sh
+
+thids=$(dirname $(readlink -f $0))
+cd $thids
+cmd=embed-f
+rm bin/$cmd
+cabal build
+find dist-newstyle/build -type f -name $cmd |
+xargs -I {} cp {} bin/

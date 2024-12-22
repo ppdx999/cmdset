@@ -1,0 +1,99 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+tmp=/tmp/$(basename $0).$(date +%s).$$
+
+sed -e '1s/awk/gawk/' embed-f > $tmp-embed-f.gawk
+chmod +x $tmp-embed-f.gawk
+
+sed -e '1s/awk/nawk/' embed-f > $tmp-embed-f.nawk
+chmod +x $tmp-embed-f.nawk
+
+sed -e '1s/awk/mawk/' embed-f > $tmp-embed-f.mawk
+chmod +x $tmp-embed-f.mawk
+
+cmds="./embed-f $tmp-embed-f.gawk $tmp-embed-f.nawk $tmp-embed-f.mawk"
+
+##########################################################################
+# Test Main Routine
+for cmd in $cmds; do
+
+printf "%6s: " ${cmd##*.}
+
+#
+# Test Case 1
+#
+cat <<EOF > $tmp-template
+<body>
+<h1>Title</h1>
+<main>
+<!-- ___MAIN_CONTENT___ -->
+</main>
+</body>
+EOF
+
+cat <<EOF > $tmp-data
+<p>Content</p>
+EOF
+  
+cat <<EOF > $tmp-expected
+<body>
+<h1>Title</h1>
+<main>
+<p>Content</p>
+</main>
+</body>
+EOF
+
+$cmd ___MAIN_CONTENT___ $tmp-template $tmp-data > $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+diff -u $tmp-expected $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+
+#
+# Test Case 2
+#
+
+cat <<EOF > $tmp-template
+<body>
+<h1>Title</h1>
+<!--- ___LOGO_IMG___ -->
+<main>
+... Super long content ...
+</main>
+<!--- ___LOGO_IMG___ -->
+</body>
+EOF
+
+cat <<EOF > $tmp-data
+<img src="logo.png" alt="Logo">
+EOF
+
+cat <<EOF > $tmp-expected
+<body>
+<h1>Title</h1>
+<img src="logo.png" alt="Logo">
+<main>
+... Super long content ...
+</main>
+<img src="logo.png" alt="Logo">
+</body>
+EOF
+
+$cmd ___LOGO_IMG___ $tmp-template $tmp-data > $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+diff -u $tmp-expected $tmp-output
+if [ $? -ne 0 ]; then echo "NG"; exit 1; fi
+
+echo "OK"
+
+done
+
+##########################################################################
+# Clean up and Exit
+rm -f $tmp-*
+exit 0
