@@ -12,7 +12,7 @@ argon2/pwverify
 # assert-kv/assert-kv 
 cookie2kv/cookie2kv
 embed/embed
-embed-f/embed-f
+embed-f/bin/embed-f
 embed-kv/embed-kv
 embed-l/embed-l
 escape/escape
