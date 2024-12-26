@@ -1,6 +1,4 @@
 module Main where
 
-import Shared (someFunc)
-
 main :: IO ()
-main = someFunc
+main = putStrLn "Test suite not yet implemented."
