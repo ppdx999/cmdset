@@ -1,0 +1,26 @@
+#!/bin/sh
+
+##########################################################################
+# Prepare Test
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
+tmp=/tmp/$(basename $0).$(date +%s).$$
+cmd="./bin/embed-kv"
+
+./build
+
+ls tests |
+while read c; do
+  printf "%-25s" $c
+
+  data=tests/$c/data
+  template=tests/$c/template
+  expect=tests/$c/expect
+
+  $cmd $template $data > $tmp-actual
+  diff -u $expect $tmp-actual
+  if [ $? -ne 0 ]; then echo "... NG"; exit 1; fi
+  echo "... OK"
+done
+
+rm -f $tmp-*
