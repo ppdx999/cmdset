@@ -1,3 +1,4 @@
 packages:
   shared/
   cmd1/
+  escape-html/
