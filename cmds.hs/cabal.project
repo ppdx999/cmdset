@@ -1,4 +1,5 @@
 packages:
   shared/
   cmd1/
+  embed-kv/
   escape-html/
