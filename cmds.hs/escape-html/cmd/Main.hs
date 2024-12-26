@@ -1,28 +1,28 @@
 module Main where
 
+import Shared (showMsgs, readFT)
 import Lib (escapeHTML)
 import System.Environment (getArgs)
-import System.IO (hPutStr, stderr)
-import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 usage :: IO ()
-usage = do
-    hPutStr stderr "Usage: escape-html\n"
-    hPutStr stderr "Description:\n"
-    hPutStr stderr "  Escape HTML special characters in the input text.\n"
-    hPutStr stderr "  read from stdin and write to stdout.\n"
-    hPutStr stderr "Version: 0.1.0"
+usage = showMsgs
+    [
+    "Usage: escape-html",
+    "Description:",
+    "  Escape HTML special characters in the input text.",
+    "  read from stdin and write to stdout.",
+    "Version: 0.1.0"
+    ]
 
-
-readF :: String -> IO T.Text
-readF "-" = TIO.getContents
-readF f   = TIO.readFile f
 
 main :: IO ()
 main = do
     args <- getArgs
     case args of
-        [] -> TIO.interact escapeHTML
-        [f] -> readF f >>= TIO.putStr . escapeHTML
+        [] -> mainProc "-"
+        [f] -> mainProc f
         _  -> usage
+
+mainProc :: String  -> IO ()
+mainProc f = readFT f >>= TIO.putStr . escapeHTML
