@@ -1,0 +1,12 @@
+#!/bin/sh
+
+thids=$(dirname $(readlink -f $0))
+cd $thids
+mkdir -p bin
+cabal build all
+cmds="embed-kv escape-html"
+for cmd in $cmds; do
+  [ -f bin/$cmd ] && rm bin/$cmd
+  find dist-newstyle/build -type f -name $cmd |
+  xargs -I {} cp {} bin/
+done
