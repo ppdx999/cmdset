@@ -1,0 +1,26 @@
+#!/bin/sh
+
+
+thisd=$(dirname $(readlink -f $0))
+cd $thisd
+tmp=/tmp/$(basename $0).$(date +%s).$$
+testd=$thisd/tests
+
+EXIT() {
+  rm -f $tmp-*
+  exit $1
+}
+
+######################################
+# Haskell
+
+cmds="embed-kv"
+for cmd in $cmds; do
+  $testd/$cmd/test $thisd/cmds.hs/bin/$cmd > $tmp-out
+  case $? in
+    0) echo "Haskell $cmd ... OK";;
+    *) echo "Haskell $cmd ... NG"; cat $tmp-out; EXIT 1;;
+  esac
+done
+
+EXIT 0
