@@ -4,3 +4,4 @@ packages:
   embed-kv/
   escape-html/
   form2kv/
+  query2kv/
