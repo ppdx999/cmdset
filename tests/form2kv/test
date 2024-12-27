@@ -1,0 +1,36 @@
+#!/bin/bash
+
+thids=$(dirname $(readlink -f $0))
+tmp=/tmp/$(basename $0).$(date +%s).$$
+cd $thids
+
+EXIT() {
+  rm -f $tmp-*
+  exit $1
+}
+
+for cmd in "$@"; do
+  echo "------------------------------------------------"
+  printf "%-25s" $cmd
+  echo ""
+
+  ls . |
+  grep -v '^test$' |
+  while read c; do
+    printf "%-25s" $c
+
+    cat $c/out | sort > $tmp-out
+
+    CONTENT_LENGTH=$(cat $c/in | tr -d '\n' | wc -c) $cmd < $c/in |
+    sort |
+    diff -u $tmp-out -
+    if [ $? -ne 0 ]; then echo "... NG"; EXIT 1; fi
+    echo "... OK"
+  done
+  case $? in
+    0) echo "All tests passed";;
+    *) echo "Tests failed"; EXIT 1;;
+  esac
+done
+
+EXIT 0
