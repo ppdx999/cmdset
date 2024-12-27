@@ -56,7 +56,7 @@ build-type:         Simple
 common warnings
     ghc-options: -Wall
 
-library
+library lib
     -- Import common warning flags.
     import:           warnings
 
@@ -95,9 +95,9 @@ executable embed-kv
     build-depends:
         base ^>=4.17.2.1,
         shared,
+        lib,
         containers,
-        text,
-        embed-kv
+        text
 
     -- Directories containing source files.
     hs-source-dirs:   cmd
@@ -133,4 +133,4 @@ test-suite embed-kv-test
         containers,
         text,
         hspec,
-        embed-kv
+        lib

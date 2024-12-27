@@ -56,7 +56,7 @@ build-type:         Simple
 common warnings
     ghc-options: -Wall
 
-library
+library lib
     -- Import common warning flags.
     import:           warnings
 
@@ -95,8 +95,8 @@ executable escape-html
     build-depends:
         base ^>=4.17.2.1,
         shared,
-        text,
-        escape-html
+        lib,
+        text
 
     -- Directories containing source files.
     hs-source-dirs:   cmd
@@ -129,6 +129,6 @@ test-suite escape-html-test
     -- Test dependencies.
     build-depends:
         base ^>=4.17.2.1,
-        text,
         hspec,
-        escape-html
+        lib,
+        text,
