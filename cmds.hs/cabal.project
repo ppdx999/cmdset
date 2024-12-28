@@ -2,6 +2,7 @@ packages:
   age/
   shared/
   cmd1/
+  cookie2kv/
   embed-kv/
   escape-html/
   form2kv/
