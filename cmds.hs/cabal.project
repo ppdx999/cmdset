@@ -7,3 +7,4 @@ packages:
   escape-html/
   form2kv/
   query2kv/
+  self/

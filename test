@@ -14,7 +14,7 @@ EXIT() {
 ######################################
 # Haskell
 
-cmds="cookie2kv embed-kv escape-html form2kv query2kv"
+cmds="cookie2kv embed-kv escape-html form2kv query2kv self"
 for cmd in $cmds; do
   $testd/$cmd/test $thisd/cmds.hs/bin/$cmd
   case $? in
