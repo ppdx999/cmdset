@@ -1,4 +1,5 @@
 packages:
+  age/
   shared/
   cmd1/
   embed-kv/
