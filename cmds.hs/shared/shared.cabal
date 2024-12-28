@@ -70,7 +70,11 @@ library
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1, text
+    build-depends:
+        base ^>=4.17.2.1
+        , text
+        , containers
+        , uri-encode
 
     -- Directories containing source files.
     hs-source-dirs:   src
@@ -102,5 +106,6 @@ test-suite shared-test
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
-        shared
+        base ^>=4.17.2.1
+        , shared
+        , hspec

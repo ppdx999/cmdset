@@ -71,11 +71,12 @@ library lib
 
     -- Other library packages from which modules are imported.
     build-depends:
-      base ^>=4.17.2.1,
-      uri-encode,
-      bytestring,
-      containers,
-      text
+      base ^>=4.17.2.1
+      , shared
+      , uri-encode
+      , bytestring
+      , containers
+      , text
 
     -- Directories containing source files.
     hs-source-dirs:   lib
@@ -134,9 +135,9 @@ test-suite form2kv-test
 
     -- Test dependencies.
     build-depends:
-        base ^>=4.17.2.1,
-        hspec,
-        lib,
-        bytestring,
-        containers,
-        text
+        base ^>=4.17.2.1
+        , hspec
+        , lib
+        , bytestring
+        , containers
+        , text

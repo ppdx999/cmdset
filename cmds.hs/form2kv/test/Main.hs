@@ -1,7 +1,7 @@
 module Main where
 
 import Test.Hspec
-import Lib (decodeUrlEncodedText, form2kvs, kvs2text)
+import Lib (decodeUrlEncodedText, form2kvs)
 import Data.Bifunctor (bimap)
 import qualified Data.Text as T
 import qualified Data.Map.Strict as Map
@@ -16,12 +16,6 @@ test_form2kvs input expected =
     form2kvs (T.pack input)
     `shouldBe`
     Map.fromList (map (bimap T.pack T.pack) expected)
-
-test_kvs2text :: [(String, String)] -> String -> Expectation
-test_kvs2text input expected =
-    kvs2text (Map.fromList (map (bimap T.pack T.pack) input))
-    `shouldBe`
-    T.pack expected
 
 main :: IO ()
 main = hspec $ do
@@ -78,18 +72,3 @@ main = hspec $ do
         test_form2kvs
           "place=%E6%9D%B1%E4%BA%AC%0D%0A%E5%A4%A7%E9%98%AA&country=ja+pan"
           [("place", "東京\n大阪"), ("country", "ja pan")]
-
-    describe "kvs2text" $ do
-      it "converts a key-value store into a text" $ do
-        test_kvs2text [] ""
-        test_kvs2text [("a", "b")] "a b\n"
-        test_kvs2text [("a", "b"), ("c", "d")] "a b\nc d\n"
-
-      it "escape lf" $ do
-        test_kvs2text [("a", "b\nc")] "a b\\nc\n"
-        test_kvs2text [("a", "b"), ("c", "d\ne")] "a b\nc d\\ne\n"
-
-      it "e2e" $ do
-        test_kvs2text
-          [("place", "東京\n大阪"), ("country", "ja pan")]
-          "country ja pan\nplace 東京\\n大阪\n"

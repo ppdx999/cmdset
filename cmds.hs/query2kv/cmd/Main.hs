@@ -1,10 +1,9 @@
--- module Main where
+module Main where
 
-import Shared (showMsgs)
-import Lib (query2kvs, kvs2text)
+import Shared (showMsgs, showKVS)
+import Lib (query2kvs)
 import System.Environment (getArgs, getEnv)
 import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
 
 
 usage :: IO ()
@@ -20,5 +19,5 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    []    -> getEnv "QUERY_STRING" >>= TIO.putStr . kvs2text . query2kvs . T.pack
+    []    -> getEnv "QUERY_STRING" >>= showKVS . query2kvs . T.pack
     _     -> usage

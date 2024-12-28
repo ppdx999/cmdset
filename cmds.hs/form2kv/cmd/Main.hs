@@ -1,11 +1,10 @@
 -- module Main where
 
-import Shared (showMsgs)
-import Lib (form2kvs, kvs2text)
+import Shared (showMsgs, showKVS)
+import Lib (form2kvs)
 import System.Environment (getArgs, getEnv)
 import qualified Data.ByteString as B
 import qualified Data.Text.Encoding as TE
-import qualified Data.Text.IO as TIO
 
 usage :: IO ()
 usage = showMsgs
@@ -38,4 +37,4 @@ mainProc = do
     let kvs = form2kvs input
 
     -- Print the output
-    TIO.putStr $ kvs2text kvs
+    showKVS kvs
