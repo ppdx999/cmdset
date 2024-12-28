@@ -31,6 +31,12 @@ main = hspec $ do
       it "escape lf" $ do
         test_query2kvs "a=b%0Ac" [("a", "b\nc")]
 
+      it "extra space , tab , cr and lf are ignored" $ do
+        test_query2kvs " a = b & c = d " [("a", "b"), ("c", "d")]
+        test_query2kvs "a=b\t&c=d" [("a", "b"), ("c", "d")]
+        test_query2kvs "a=b\r&c=d" [("a", "b"), ("c", "d")]
+        test_query2kvs "a=b\n&c=d" [("a", "b"), ("c", "d")]
+
       it "e2e" $ do
         test_query2kvs
           "place=%E6%9D%B1%E4%BA%AC%0D%0A%E5%A4%A7%E9%98%AA&country=ja+pan"
