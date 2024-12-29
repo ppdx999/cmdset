@@ -1,7 +1,9 @@
 module Main (main) where
 
 import Test.Hspec
-import Shared (decodeUrlEncodedText)
+import Shared (decodeUrlEncodedText, parseKVS)
+import qualified Data.Text as T
+import qualified Data.Map.Strict as Map
 
 test_decodeUrlEncodedText :: String -> String -> Expectation
 test_decodeUrlEncodedText input expected =
@@ -9,6 +11,27 @@ test_decodeUrlEncodedText input expected =
 
 main :: IO ()
 main = hspec $ do
+    describe "parseKV" $ do
+        it "parses a key-value formatted string" $ do
+            parseKV $ T.pack "key1 value"
+            `shouldBe`
+            Map.fromList [(T.pack "key1", T.pack "value")]
+
+        it "parses a key-value formatted string with multiple lines" $ do
+            parseKV $ T.pack "key1 value\nkey2 value 2"
+            `shouldBe`
+            Map.fromList [(T.pack "key1", T.pack "value"), (T.pack "key2", T.pack "value 2")]
+
+        it "parses a key-value formatted string with leading and trailing spaces" $ do
+            parseKV $ T.pack " key1 value "
+            `shouldBe`
+            Map.fromList [(T.pack "key1", T.pack "value")]
+
+        it "parses empty string" $ do
+            parseKV $ T.pack ""
+            `shouldBe`
+            Map.empty
+
     describe "decodeUrlEncodedText" $ do
       it "decodes basic URL-encoded strings" $ do
         test_decodeUrlEncodedText "%20" " "

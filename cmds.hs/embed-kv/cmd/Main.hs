@@ -1,9 +1,10 @@
 module Main where
 
-import Shared (showMsgs, readFT)
-import Lib (parseKV, embed)
+import Shared (showMsgs, readFT, parseKVS, KVS)
 import System.Environment (getArgs)
 import qualified Data.Text.IO as TIO
+import qualified Data.Text as T
+import qualified Data.Map as Map
 
 usage :: IO ()
 usage = showMsgs
@@ -22,4 +23,7 @@ main = do
     _     -> usage
 
 mainProc :: String -> String -> IO ()
-mainProc t d = TIO.putStr =<< embed <$> readFT t <*> (parseKV <$> readFT d)
+mainProc t d = TIO.putStr =<< embed <$> readFT t <*> (parseKVS <$> readFT d)
+
+embed :: T.Text -> KVS -> T.Text
+embed = Map.foldrWithKey T.replace

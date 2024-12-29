@@ -4,7 +4,7 @@ thids=$(dirname $(readlink -f $0))
 cd $thids
 mkdir -p bin
 cabal build all
-cmds="age cookie2kv embed-kv escape-html form2kv query2kv self"
+cmds="age cookie2kv embed-kv escape-html form2kv query2kv readkv self"
 for cmd in $cmds; do
   [ -f bin/$cmd ] && rm bin/$cmd
   find dist-newstyle/build -type f -name $cmd |
