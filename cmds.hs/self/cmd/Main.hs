@@ -34,17 +34,6 @@ mainProc fs = B.unlines . map (procLine fs) . B.lines
 procLine :: [Field] -> B.ByteString -> B.ByteString
 procLine fs = joinFields . filterFields fs . toFields
 
-readNumber :: T.Text -> Either String Int
-readNumber = go . T.unpack
-  where
-    go :: String -> Either String Int
-    go x
-      | all isDigit x = Right $ read x
-      | otherwise = Left $ "Not a number: " ++ x
-
-isRange :: T.Text -> Bool
-isRange = T.isInfixOf (T.pack "/")
-
 parseFields :: [String] -> Either String [Field]
 parseFields = mapM (go . T.pack)
   where
@@ -70,6 +59,17 @@ parseFields = mapM (go . T.pack)
     parseRangeItem x
       | x == T.pack "NF" = Right RNF
       | otherwise = RNumber <$> readNumber x
+
+    readNumber :: T.Text -> Either String Int
+    readNumber = go' . T.unpack
+      where
+        go' :: String -> Either String Int
+        go' x
+          | all isDigit x = Right $ read x
+          | otherwise = Left $ "Not a number: " ++ x
+
+    isRange :: T.Text -> Bool
+    isRange = T.isInfixOf (T.pack "/")
 
 toFields :: B.ByteString -> [B.ByteString]
 toFields line = filter (/= blank) $ B.split ' ' line
