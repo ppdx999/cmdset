@@ -78,6 +78,3 @@ filterFields fields xs = map go fields
 
 joinFields :: [B.ByteString] -> B.ByteString
 joinFields = B.intercalate (B.pack " ")
-
-applyIf :: Bool -> (a -> a) -> a -> a
-applyIf cond f x = if cond then f x else x
