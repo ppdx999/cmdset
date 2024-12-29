@@ -74,6 +74,7 @@ executable self
         base ^>=4.17.2.1
         , bytestring
         , shared
+        , text
 
     -- Directories containing source files.
     hs-source-dirs:   cmd
